@@ -1,0 +1,11 @@
+{
+  "name": "spoofuname",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "author": "YangQi0408",
+  "license": "None",
+  "dependencies": {
+    "kernelsu": "^2.1.1"
+  }
+}

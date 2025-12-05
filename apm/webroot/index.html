@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpoofUname</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        
+        /* 开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-left: 10px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #2196f3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SpoofUname</h1>
+        
+        <div style="margin: 10px 0;">
+            <label for="superkey">Superkey:</label>
+            <input type="text" id="superkey" placeholder="请输入 Superkey" style="margin-left: 10px; padding: 5px; width: 200px;">
+        </div>
+        <div style="margin: 10px 0;">
+            <label for="release">Release:</label>
+            <input type="text" id="release" placeholder="请输入 Release" style="margin-left: 10px; padding: 5px; width: 200px;">
+        </div>
+        <div style="margin: 10px 0;">
+            <label for="version">Version:</label>
+            <input type="text" id="version" placeholder="请输入 Version" style="margin-left: 10px; padding: 5px; width: 200px;">
+        </div>
+        <div style="margin: 10px 0;">
+            <label for="moduleSwitch">模块开关:</label>
+            <label class="switch">
+                <input type="checkbox" id="moduleSwitch" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <button onclick="testUname()">测试 Uname</button>
+        <button onclick="setRelease()">设置 RELEASE</button>
+        <button onclick="setVersion()">设置 VERSION</button>
+        <div id="output" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+    </div>
+
+    <!-- 引入KernelSU WebUI主逻辑 -->
+    <script type="module" src="index.js"></script>
+</body>
+</html>

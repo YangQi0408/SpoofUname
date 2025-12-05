@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0  # 获取完整历史记录以计算commit数量
+        
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake git zip unzip wget
+        cd ~
+        wget -q https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+        unzip android-ndk-r27d-linux.zip
+        echo "ANDROID_NDK=$HOME/android-ndk-r27d/" >> $GITHUB_ENV
+        
+    - name: Build project
+      run: |
+        make clean
+        make all
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: |
+          build/*.kpm
+          build/*.zip
