@@ -7,11 +7,8 @@
 **警告：**
 APM暂不适配SukiSU Ultra，如需使用请手动控制KPM。
 
-**警告*2：**
-KPM暂不适配KernelPatch 0.12.3（表现为卸载KPM时会死机重启），0.12.2及以下版本正常。
-
 ## 使用方法
-### 通用
+### APatch
 1. 下载APM和KPM。
 2. 加载/嵌入KPM。
 3. 安装APM。
