@@ -26,7 +26,7 @@ KPM_LICENSE("GPL v2");
 KPM_AUTHOR("YangQi0408");
 KPM_DESCRIPTION("Spoof Uname Information");
 
-void before_newuname(hook_fargs1_t *args, void *udata)
+static void before_newuname(hook_fargs1_t *args, void *udata)
 {
     uid_t uid = current_uid();
     void __user *name __maybe_unused = (void __user *)syscall_argn(args, 0);
@@ -34,7 +34,7 @@ void before_newuname(hook_fargs1_t *args, void *udata)
     logkd("newuname called by uid: %d, args[0]: 0x%lx\n", uid, syscall_argn(args, 0));
 }
 
-void after_newuname(hook_fargs1_t *args, void *udata)
+static void after_newuname(hook_fargs1_t *args, void *udata)
 {
     uid_t uid = current_uid();
     long ret = args->ret;
@@ -42,8 +42,14 @@ void after_newuname(hook_fargs1_t *args, void *udata)
     
     logkd("newuname returned: %ld for uid: %d, user buffer: 0x%lx\n", ret, uid, syscall_argn(args, 0));
     
+    // 检查用户空间指针是否有效
+    if (!name) {
+        logkd("uname user buffer is NULL, skipping modification\n");
+        return;
+    }
+
     // 如果系统调用成功且启用了修改，才修改release和version信息
-    if (ret == 0 && name && modify_enabled) {
+    if (ret == 0 && modify_enabled) {
         // 修改release信息
         if (custom_release[0] != '\0') {
             char release[65];
@@ -85,9 +91,19 @@ void after_newuname(hook_fargs1_t *args, void *udata)
 static long inline_hook_demo_init(const char *args, const char *event, void *__user reserved)
 {
     logkd("Spoof Uname init\n");
-
+    
     hook_err_t err = inline_hook_syscalln(__NR_uname, 1, before_newuname, after_newuname, NULL);
-    logkd("newuname hook err: %d\n", err);
+    logkd("uname hook result: %d\n", err);
+    
+    if (err != 0) {
+        logkd("Failed to hook uname syscall: %d\n", err);
+        // 如果是重定位错误或重复错误，尝试继续
+        if (err == -4092 || err == -4094) { // HOOK_BAD_RELO or HOOK_DUPLICATED
+            logkd("Hook already exists or relocation failed, trying to continue...\n");
+            return 0;
+        }
+        return err;
+    }
 
     return 0;
 }
@@ -154,9 +170,9 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
 
 static long inline_hook_demo_exit(void *__user reserved)
 {
-    inline_unhook_syscalln(__NR_uname, before_newuname, after_newuname);
-
     logkd("Spoof Uname exit\n");
+    modify_enabled = 0;
+    inline_unhook_syscalln(__NR_uname, before_newuname, after_newuname);
     
     return 0;
 }

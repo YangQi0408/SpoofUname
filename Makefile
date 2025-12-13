@@ -1,5 +1,5 @@
 # 项目版本号
-VERSION := v0.0.1
+VERSION := v0.0.2
 # 构建输出目录
 BUILD_DIR := build
 
