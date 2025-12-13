@@ -1,5 +1,5 @@
 # 项目版本号
-VERSION := v0.0.2
+VERSION := v0.1.0
 # 构建输出目录
 BUILD_DIR := build
 
@@ -85,7 +85,7 @@ update-version:
 	@sed -i 's/^versionCode=.*/versionCode='`cat .commit_count`'/' $(APM_DIR)/module.prop
 	@echo "版本号已更新"
 	# 保存完整版本号到临时文件供KPM构建使用
-	@echo "`cat .commit_count`-`cat .commit_hash`" > .full_version
+	@echo "$(VERSION)-"`cat .commit_count`"-"`cat .commit_hash` > .full_version
 	@echo "APM版本已更新为: $(VERSION)-"`cat .commit_count`"-"`cat .commit_hash`, versionCode已设置为: "`cat .commit_count`"
 	@rm -f .commit_count .commit_hash
 
