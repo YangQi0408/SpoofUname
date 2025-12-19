@@ -14,8 +14,8 @@ ifndef ANDROID_NDK
 endif
 
 # 最终生成的文件路径
-APM_ZIP := $(BUILD_DIR)/SpoofUname_APM_$(VERSION)-$(shell git rev-list --count HEAD 2>/dev/null || echo 1)-$(shell git rev-parse --short HEAD 2>/dev/null || echo unknown).zip
-KPM_FILE := $(BUILD_DIR)/SpoofUname_KPM_$(VERSION)-$(shell git rev-list --count HEAD 2>/dev/null || echo 1)-$(shell git rev-parse --short HEAD 2>/dev/null || echo unknown).kpm
+APM_ZIP := $(BUILD_DIR)/SpoofUname_APM_$(VERSION).zip
+KPM_FILE := $(BUILD_DIR)/SpoofUname_KPM_$(VERSION).kpm
 
 # 声明伪目标（不对应实际文件）
 .PHONY: all clean apm kpm install install-apm install-kpm update-version restore-version kpm-build
@@ -54,8 +54,8 @@ $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli
 # 复制 KPM 文件到构建目录
 $(KPM_FILE): $(BUILD_DIR) kpm-build
 	@echo "正在复制KPM文件..."
-	@cp $(KPM_DIR)/build/spoofuname_*.kpm $(KPM_FILE)
-	@echo "KPM文件已生成: $(KPM_FILE)"
+	@cp $(KPM_DIR)/build/spoofuname_*.kpm $(BUILD_DIR)/SpoofUname_KPM_$(VERSION)-`cat $(CURDIR)/.full_version`.kpm
+	@echo "KPM文件已生成: $(BUILD_DIR)/SpoofUname_KPM_$(VERSION)-`cat $(CURDIR)/.full_version`.kpm"
 
 # 构建 APM CLI 工具（依赖子目录的 Makefile）
 $(APM_DIR)/cli/build/spoof-uname-cli:
@@ -84,8 +84,8 @@ update-version:
 	@sed -i 's/^version=.*/version=$(VERSION)-'`cat .commit_count`'-'`cat .commit_hash`'/' $(APM_DIR)/module.prop
 	@sed -i 's/^versionCode=.*/versionCode='`cat .commit_count`'/' $(APM_DIR)/module.prop
 	@echo "版本号已更新"
-	# 保存完整版本号到临时文件供KPM构建使用
-	@echo "$(VERSION)-"`cat .commit_count`"-"`cat .commit_hash` > .full_version
+# 保存完整版本号到临时文件供KPM构建使用
+	@echo "`cat .commit_count`-`cat .commit_hash`" > .full_version
 	@echo "APM版本已更新为: $(VERSION)-"`cat .commit_count`"-"`cat .commit_hash`, versionCode已设置为: "`cat .commit_count`"
 	@rm -f .commit_count .commit_hash
 
