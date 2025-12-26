@@ -98,6 +98,13 @@ make clean
 - `build/SpoofUname_APM_*.zip` - APM模块包
 - `build/SpoofUname_KPM_*.kpm` - KPM内核模块
 
+## 注意事项
+- 修改内核信息可能影响某些应用的兼容性
+- 建议在测试环境中先验证功能
+- 日志文件会记录所有操作，但不会记录敏感信息（如SuperKey）
+- 模块禁用后，uname信息会恢复为原始值
+- 请妥善保管SuperKey，切勿泄露给他人
+
 ## 感谢
 [KernelPatch](https://github.com/bmax121/KernelPatch/)： 核心功能。
 

@@ -45,7 +45,7 @@ function setRelease() {
         }
         
         // 写入日志
-        writeLog(`setRelease: superkey=${superkey}, release=${release}, errno=${errno}, stdout=${stdout.trim()}`);
+        writeLog(`setRelease: release=${release}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
     const command = `${CONFIG.CLI_PATH} -s ${superkey} -r "${release}"`;
@@ -76,7 +76,7 @@ function setVersion() {
         }
         
         // 写入日志
-        writeLog(`setVersion: superkey=${superkey}, version=${version}, errno=${errno}, stdout=${stdout.trim()}`);
+        writeLog(`setVersion: version=${version}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
     const command = `${CONFIG.CLI_PATH} -s ${superkey} -v "${version}"`;
@@ -106,7 +106,7 @@ function toggleModule() {
         }
         
         // 写入日志
-        writeLog(`toggleModule: superkey=${superkey}, enabled=${isEnabled}, errno=${errno}, stdout=${stdout.trim()}`);
+        writeLog(`toggleModule: enabled=${isEnabled}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
     const command = `${CONFIG.CLI_PATH} -s ${superkey} ${isEnabled ? '-e' : '-d'}`;
