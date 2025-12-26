@@ -14,8 +14,6 @@ function getUname() {
     ksu.exec('uname -a', '{}', callback);
 }
 
-
-
 function setRelease() {
     const output = document.getElementById('output');
     const superkey = document.getElementById('superkey').value.trim();
@@ -33,9 +31,10 @@ function setRelease() {
         output.innerHTML = errno === 0 ? `设置 RELEASE 成功: ${stdout.trim()}` : '设置 RELEASE 失败';
         delete window[callback];
         
-        // 设置完成后将开关显示为打开状态
+        // 设置完成后将开关显示为打开状态并刷新KPM状态
         if (errno === 0) {
             setSwitchOn();
+            setTimeout(() => getKpmStatus(), 500);
         }
         
         // 写入日志
@@ -63,9 +62,10 @@ function setVersion() {
         output.innerHTML = errno === 0 ? `设置 VERSION 成功: ${stdout.trim()}` : '设置 VERSION 失败';
         delete window[callback];
         
-        // 设置完成后将开关显示为打开状态
+        // 设置完成后将开关显示为打开状态并刷新KPM状态
         if (errno === 0) {
             setSwitchOn();
+            setTimeout(() => getKpmStatus(), 500);
         }
         
         // 写入日志
@@ -92,6 +92,11 @@ function toggleModule() {
     window[callback] = (errno, stdout) => {
         output.innerHTML = errno === 0 ? `模块${isEnabled ? '启用' : '禁用'}成功: ${stdout.trim()}` : `模块${isEnabled ? '启用' : '禁用'}失败`;
         delete window[callback];
+        
+        // 操作完成后刷新KPM状态
+        if (errno === 0) {
+            setTimeout(() => getKpmStatus(), 500);
+        }
         
         // 写入日志
         writeLog(`toggleModule: superkey=${superkey}, enabled=${isEnabled}, errno=${errno}, stdout=${stdout.trim()}`);
@@ -120,14 +125,78 @@ function writeLog(message) {
     ksu.exec(command, '{}', logCallback);
 }
 
+function getKpmStatus() {
+    const output = document.getElementById('output');
+    const kpmStatus = document.getElementById('kpmStatus');
+    const kpmStatusContent = document.getElementById('kpmStatusContent');
+    const superkey = document.getElementById('superkey').value.trim();
+    
+    if (!superkey) {
+        output.innerHTML = '请先输入 SuperKey';
+        return;
+    }
+    
+    output.innerHTML = '正在获取 KPM 状态...';
+    
+    const callback = `cb_${Date.now()}`;
+    window[callback] = (errno, stdout) => {
+        if (errno === 0) {
+            // 解析换行的状态信息
+            const lines = stdout.trim().split('\n');
+            let statusHtml = '';
+            
+            lines.forEach(line => {
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > 0) {
+                    const key = line.substring(0, colonIndex).trim();
+                    const value = line.substring(colonIndex + 1).trim();
+                    
+                    if (key === 'modify') {
+                        const is_enabled = value === 'enabled';
+                        const color = is_enabled ? '#4caf50' : '#f44336';
+                        const text = is_enabled ? '已启用' : '已禁用';
+                        statusHtml += `<div><strong>模块状态:</strong> <span style="color: ${color}">${text}</span></div>`;
+                        
+                        // 更新开关状态
+                        document.getElementById('moduleSwitch').checked = is_enabled;
+                    } else if (key === 'release') {
+                        const displayValue = value || '(未设置)';
+                        statusHtml += `<div><strong>Release:</strong> ${displayValue}</div>`;
+                        document.getElementById('release').value = value;
+                    } else if (key === 'version') {
+                        const displayValue = value || '(未设置)';
+                        statusHtml += `<div><strong>Version:</strong> ${displayValue}</div>`;
+                        document.getElementById('version').value = value;
+                    }
+                }
+            });
+            
+            // 显示KPM状态区域
+            kpmStatusContent.innerHTML = statusHtml;
+            kpmStatus.style.display = 'block';
+            output.innerHTML = 'KPM 状态已更新';
+        } else {
+            output.innerHTML = '获取 KPM 状态失败，请检查 SuperKey 是否正确';
+        }
+        delete window[callback];
+        
+        // 写入日志
+        writeLog(`getKpmStatus: errno=${errno}, stdout=${stdout.trim()}`);
+    };
+    
+    const command = `/data/adb/modules/spoof_uname/bin/spoof-uname-cli -s ${superkey} -k`;
+    ksu.exec(command, '{}', callback);
+}
+
 window.getUname = getUname;
 window.setRelease = setRelease;
 window.setVersion = setVersion;
 window.toggleModule = toggleModule;
 window.writeLog = writeLog;
+window.getKpmStatus = getKpmStatus;
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('output').innerHTML = '点击输入文本';
+    document.getElementById('output').innerHTML = 'Welcome';
     
     // 监听开关变化
     document.getElementById('moduleSwitch').addEventListener('change', toggleModule);
