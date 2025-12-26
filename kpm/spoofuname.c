@@ -116,7 +116,7 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
     int reply_len = 0;
     
     if (!args || !strncmp(args, "STATUS", 6)) {
-        reply_len = snprintf(reply_msg, sizeof(reply_msg), "modify: %s, release: %s, version: %s", 
+        reply_len = snprintf(reply_msg, sizeof(reply_msg), "modify: %s\nrelease: %s\nversion: %s", 
                            modify_enabled ? "enabled" : "disabled", custom_release, custom_version);
     } else if (!strncmp(args, "SR ", 3)) {
         const char *new_release = args + 3;

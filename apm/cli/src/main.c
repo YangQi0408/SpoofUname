@@ -32,15 +32,16 @@ int main(int argc, char *argv[])
     int parsed_count = 0;
 
     static struct option long_opts[] = {
-        {"superkey",    required_argument, 0, 's'},
-        {"set-release", required_argument, 0, 'r'},
-        {"set-version", required_argument, 0, 'v'},
-        {"disable",     no_argument,       0, 'd'},
-        {"enable",      no_argument,       0, 'e'},
+        {"superkey",       required_argument, 0, 's'},
+        {"set-release",    required_argument, 0, 'r'},
+        {"set-version",    required_argument, 0, 'v'},
+        {"disable",        no_argument,       0, 'd'},
+        {"enable",         no_argument,       0, 'e'},
+        {"get-kpm-status", no_argument,       0, 'k'},
         {0, 0, 0, 0}
     };
 
-    while ((opt = getopt_long(argc, argv, "s:r:v:de", long_opts, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "s:r:v:dek", long_opts, &option_index)) != -1) {
         parsed_count++;
         switch (opt) {
         case 's':
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
             action_flag = true;
-            sc_kpm_control(superkey, "Spoof Uname", "DIS", buf, sizeof(buf));
+            sc_kpm_control(superkey, "SpoofUname", "DIS", buf, sizeof(buf));
             printf("Control result: %s\n", buf);
             return 0;
             break;
@@ -103,14 +104,26 @@ int main(int argc, char *argv[])
                 return 1;
             }
             action_flag = true;
-            sc_kpm_control(superkey, "Spoof Uname", "EN", buf, sizeof(buf));
+            sc_kpm_control(superkey, "SpoofUname", "EN", buf, sizeof(buf));
             printf("Control result: %s\n", buf);
+            return 0;
+            break;
+
+        case 'k':
+            if (!superkey_flag) {
+                fprintf(stderr, "Error: --get-kpm-status must be specified after --superkey.\n");
+                return 1;
+            }
+            sc_kpm_control(superkey, "SpoofUname", "STATUS", buf, sizeof(buf));
+            
+            // 直接输出KPM的原始状态信息
+            printf("%s", buf);
             return 0;
             break;
 
         default:
             fprintf(stderr, "Usage: %s --superkey KEY "
-                            "((-d | -e) | (--set-release VER | --set-version VER))\n", argv[0]);
+                            "((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
             return 1;
         }
     }
@@ -120,29 +133,29 @@ int main(int argc, char *argv[])
         return 1;
     }
     if (!action_flag && !set_flag) {
-        fprintf(stderr, "Error: Must specify either (-d/-e) or (--set-release/--set-version).\n");
+        fprintf(stderr, "Error: Must specify either (-d/-e), (--set-release/--set-version), or -k.\n");
         return 1;
     }
 
     // 检查是否第一个选项是 --superkey
     if (parsed_count < 1 || !superkey_flag) {
         fprintf(stderr, "Error: --superkey must be specified first.\n");
-        fprintf(stderr, "Usage: %s --superkey KEY (--set-release VER | --set-version VER)\n", argv[0]);
+        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
         return 1;
     }
 
-    // 检查是否指定了 set-release 或 set-version
-    if (!release && !version) {
-        fprintf(stderr, "Error: Must specify either --set-release or --set-version after --superkey.\n");
-        fprintf(stderr, "Usage: %s --superkey KEY (--set-release VER | --set-version VER)\n", argv[0]);
+    // 检查是否指定了 set-release 或 set-version，或者是 -k 选项
+    if (!release && !version && !action_flag) {
+        fprintf(stderr, "Error: Must specify either (-d/-e), (--set-release/--set-version), or -k after --superkey.\n");
+        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
         return 1;
     }
 
     if (version) {
-        sc_kpm_control(superkey, "Spoof Uname", concat("SV ", version), buf, sizeof(buf));
+        sc_kpm_control(superkey, "SpoofUname", concat("SV ", version), buf, sizeof(buf));
     }
     if (release) {
-        sc_kpm_control(superkey, "Spoof Uname", concat("SR ", release), buf, sizeof(buf));
+        sc_kpm_control(superkey, "SpoofUname", concat("SR ", release), buf, sizeof(buf));
     }
     
     printf("Control result: %s\n", buf);

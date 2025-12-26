@@ -114,10 +114,18 @@
         <button onclick="getUname()">获取 Uname</button>
         <button onclick="setRelease()">设置 RELEASE</button>
         <button onclick="setVersion()">设置 VERSION</button>
+        <button onclick="getKpmStatus()">获取 KPM 状态</button>
+        
+        <!-- KPM 状态显示区域 -->
+        <div id="kpmStatus" style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 5px; border: 1px solid #ddd; display: none;">
+            <h4 style="margin: 0 0 10px 0;">SpoofUname 状态</h4>
+            <div id="kpmStatusContent"></div>
+        </div>
+        
+        <!-- 操作结果输出区域 -->
         <div id="output" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
     </div>
 
-    <!-- 引入KernelSU WebUI主逻辑 -->
     <script type="module" src="index.js"></script>
 </body>
 </html>
