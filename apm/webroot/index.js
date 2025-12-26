@@ -1,4 +1,4 @@
-function testUname() {
+function getUname() {
     const output = document.getElementById('output');
     output.innerHTML = '正在测试 uname 命令...';
     
@@ -8,7 +8,7 @@ function testUname() {
         delete window[callback];
         
         // 写入日志
-        writeLog(`testUname: errno=${errno}, stdout=${stdout.trim()}`);
+        writeLog(`getUname: errno=${errno}, stdout=${stdout.trim()}`);
     };
     
     ksu.exec('uname -a', '{}', callback);
@@ -120,7 +120,7 @@ function writeLog(message) {
     ksu.exec(command, '{}', logCallback);
 }
 
-window.testUname = testUname;
+window.getUname = getUname;
 window.setRelease = setRelease;
 window.setVersion = setVersion;
 window.toggleModule = toggleModule;
