@@ -1,3 +1,10 @@
+// 路径配置 - 如果需要修改模块路径，只需修改这里的配置
+const CONFIG = {
+    MODULE_PATH: '/data/adb/modules/spoof_uname',
+    CLI_PATH: '/data/adb/modules/spoof_uname/bin/spoof-uname-cli',
+    LOG_PATH: '/data/adb/llloooggg.txt'
+};
+
 function getUname() {
     const output = document.getElementById('output');
     output.innerHTML = '正在测试 uname 命令...';
@@ -41,7 +48,7 @@ function setRelease() {
         writeLog(`setRelease: superkey=${superkey}, release=${release}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `/data/adb/modules/spoof_uname/bin/spoof-uname-cli -s ${superkey} -r "${release}"`;
+    const command = `${CONFIG.CLI_PATH} -s ${superkey} -r "${release}"`;
     ksu.exec(command, '{}', callback);
 }
 
@@ -72,7 +79,7 @@ function setVersion() {
         writeLog(`setVersion: superkey=${superkey}, version=${version}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `/data/adb/modules/spoof_uname/bin/spoof-uname-cli -s ${superkey} -v "${version}"`;
+    const command = `${CONFIG.CLI_PATH} -s ${superkey} -v "${version}"`;
     ksu.exec(command, '{}', callback);
 }
 
@@ -102,7 +109,7 @@ function toggleModule() {
         writeLog(`toggleModule: superkey=${superkey}, enabled=${isEnabled}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `/data/adb/modules/spoof_uname/bin/spoof-uname-cli -s ${superkey} ${isEnabled ? '-e' : '-d'}`;
+    const command = `${CONFIG.CLI_PATH} -s ${superkey} ${isEnabled ? '-e' : '-d'}`;
     ksu.exec(command, '{}', callback);
 }
 
@@ -121,7 +128,7 @@ function writeLog(message) {
     };
     
     // 使用shell命令将日志追加到文件
-    const command = `sh -c 'echo "${logMessage}" >> /data/adb/llloooggg.txt'`;
+    const command = `sh -c 'echo "${logMessage}" >> ${CONFIG.LOG_PATH}'`;
     ksu.exec(command, '{}', logCallback);
 }
 
@@ -184,7 +191,7 @@ function getKpmStatus() {
         writeLog(`getKpmStatus: errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `/data/adb/modules/spoof_uname/bin/spoof-uname-cli -s ${superkey} -k`;
+    const command = `${CONFIG.CLI_PATH} -s ${superkey} -k`;
     ksu.exec(command, '{}', callback);
 }
 
