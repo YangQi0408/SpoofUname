@@ -2,7 +2,7 @@
 const CONFIG = {
     MODULE_PATH: '/data/adb/modules/spoof_uname',
     CLI_PATH: '/data/adb/modules/spoof_uname/bin/spoof-uname-cli',
-    LOG_PATH: '/data/adb/llloooggg.txt'
+    LOG_PATH: '/data/adb/modules/spoof_uname/log/log.txt'
 };
 
 function getUname() {
@@ -127,8 +127,9 @@ function writeLog(message) {
         delete window[logCallback];
     };
     
-    // 使用shell命令将日志追加到文件
-    const command = `sh -c 'echo "${logMessage}" >> ${CONFIG.LOG_PATH}'`;
+    // 确保日志目录存在并写入日志
+    const logDir = CONFIG.LOG_PATH.substring(0, CONFIG.LOG_PATH.lastIndexOf('/'));
+    const command = `mkdir -p ${logDir} && echo "${logMessage}" >> ${CONFIG.LOG_PATH}`;
     ksu.exec(command, '{}', logCallback);
 }
 
@@ -195,12 +196,35 @@ function getKpmStatus() {
     ksu.exec(command, '{}', callback);
 }
 
+// 清除日志功能
+function clearLogs() {
+    const output = document.getElementById('output');
+    output.innerHTML = '正在清除日志...';
+    
+    const callback = `cb_${Date.now()}`;
+    window[callback] = (errno, stdout) => {
+        if (errno === 0) {
+            output.innerHTML = '日志已清除';
+            writeLog('clearLogs: 日志已清除');
+        } else {
+            output.innerHTML = '清除日志失败';
+        }
+        delete window[callback];
+    };
+    
+    // 删除日志文件并重新创建空文件
+    const logDir = CONFIG.LOG_PATH.substring(0, CONFIG.LOG_PATH.lastIndexOf('/'));
+    const command = `rm -f ${CONFIG.LOG_PATH} && mkdir -p ${logDir} && touch ${CONFIG.LOG_PATH}`;
+    ksu.exec(command, '{}', callback);
+}
+
 window.getUname = getUname;
 window.setRelease = setRelease;
 window.setVersion = setVersion;
 window.toggleModule = toggleModule;
 window.writeLog = writeLog;
 window.getKpmStatus = getKpmStatus;
+window.clearLogs = clearLogs;
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('output').innerHTML = 'Welcome';
