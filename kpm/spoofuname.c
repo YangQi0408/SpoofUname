@@ -115,7 +115,7 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
     char reply_msg[128];
     int reply_len = 0;
     
-    if (!args || args[0] == '\0') {
+    if (!args || !strncmp(args, "STATUS", 6)) {
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "modify: %s, release: %s, version: %s", 
                            modify_enabled ? "enabled" : "disabled", custom_release, custom_version);
     } else if (!strncmp(args, "SR ", 3)) {
@@ -127,9 +127,9 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
             custom_release[sizeof(custom_release) - 1] = '\0';
             modify_enabled = 1;
             reply_len = snprintf(reply_msg, sizeof(reply_msg), "release set to: %s, modify enabled", custom_release);
-            logkd("uname release updated to: %s, modify enabled\n", custom_release);
+            logkd("uname release updated to: %s\n", custom_release);
         } else {
-            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: release too long (max 64 chars)");
+            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: release abnormal (min 1 char and max 64 chars)");
         }
     } else if (!strncmp(args, "SV ", 3)) {
         const char *new_version = args + 3;
@@ -140,21 +140,20 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
             custom_version[sizeof(custom_version) - 1] = '\0';
             modify_enabled = 1;
             reply_len = snprintf(reply_msg, sizeof(reply_msg), "version set to: %s, modify enabled", custom_version);
-            logkd("uname version updated to: %s, modify enabled\n", custom_version);
+            logkd("uname version updated to: %s\n", custom_version);
         } else {
-            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: version too long (max 64 chars)");
+            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: version abnormal (min 1 char and max 64 chars)");
         }
     } else if (!strcmp(args, "EN")) {
         modify_enabled = 1;
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "enabled");
-        logkd("uname modify enabled\n");
+        logkd("enabled\n");
     } else if (!strcmp(args, "DIS")) {
         modify_enabled = 0;
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "disabled");
-        logkd("uname modify disabled\n");
+        logkd("disabled\n");
     } else {
-
-        reply_len = snprintf(reply_msg, sizeof(reply_msg), "usage: SR <release> | SV <version> | EN | DIS");
+        reply_len = snprintf(reply_msg, sizeof(reply_msg), "Unknown command");
     }
     
     if (out_msg && outlen > 0 && reply_len > 0) {
