@@ -111,6 +111,13 @@
                 <span class="slider"></span>
             </label>
         </div>
+        <div style="margin: 10px 0;">
+            <label for="autoStartSwitch">开机自启:</label>
+            <label class="switch">
+                <input type="checkbox" id="autoStartSwitch" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
         <button onclick="getUname()">获取 Uname</button>
         <button onclick="setRelease()">设置 RELEASE</button>
         <button onclick="setVersion()">设置 VERSION</button>
@@ -127,6 +134,9 @@
         <div id="output" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
     </div>
 
+<!-- 引入配置管理模块 -->
+    <script src="config.js"></script>
+    <!-- 引入KernelSU WebUI主逻辑 -->
     <script type="module" src="index.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 # 项目版本号
-VERSION := v0.5.0
+VERSION := v0.6.0
 # 构建输出目录
 BUILD_DIR := build
 
@@ -40,10 +40,12 @@ $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli
 	# 复制模块属性文件
 	@cp $(APM_DIR)/module.prop $(BUILD_DIR)/apm_temp/
 	@cp $(APM_DIR)/customize.sh $(BUILD_DIR)/apm_temp/
+	@cp $(APM_DIR)/service.sh $(BUILD_DIR)/apm_temp/
 	# 复制 Web 界面文件
 	@mkdir -p $(BUILD_DIR)/apm_temp/webroot
 	@cp $(APM_DIR)/webroot/index.html $(BUILD_DIR)/apm_temp/webroot/
 	@cp $(APM_DIR)/webroot/index.js $(BUILD_DIR)/apm_temp/webroot/
+	@cp $(APM_DIR)/webroot/config.js $(BUILD_DIR)/apm_temp/webroot/
 	# 复制 CLI 工具
 	@mkdir -p $(BUILD_DIR)/apm_temp/bin
 	@cp $(APM_DIR)/cli/build/spoof-uname-cli $(BUILD_DIR)/apm_temp/bin/
