@@ -2,7 +2,8 @@
 const CONFIG = {
     MODULE_PATH: '/data/adb/modules/spoof_uname',
     CLI_PATH: '/data/adb/modules/spoof_uname/bin/spoof-uname-cli',
-    LOG_PATH: '/data/adb/modules/spoof_uname/log/log.txt'
+    LOG_PATH: '/data/adb/modules/spoof_uname/log/log.txt',
+    CONFIG_PATH: '/data/adb/modules/spoof_uname/config'
 };
 
 function getUname() {
@@ -38,9 +39,14 @@ function setRelease() {
         output.innerHTML = errno === 0 ? `设置 RELEASE 成功: ${stdout.trim()}` : '设置 RELEASE 失败';
         delete window[callback];
         
-        // 设置完成后将开关显示为打开状态并刷新KPM状态
+        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
             setSwitchOn();
+            const version = document.getElementById('version').value.trim();
+            const enabled = document.getElementById('moduleSwitch').checked;
+            const autoStart = document.getElementById('autoStartSwitch').checked;
+            saveConfig(release, version, enabled, superkey, autoStart);
+            // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
         
@@ -69,9 +75,14 @@ function setVersion() {
         output.innerHTML = errno === 0 ? `设置 VERSION 成功: ${stdout.trim()}` : '设置 VERSION 失败';
         delete window[callback];
         
-        // 设置完成后将开关显示为打开状态并刷新KPM状态
+        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
             setSwitchOn();
+            const release = document.getElementById('release').value.trim();
+            const enabled = document.getElementById('moduleSwitch').checked;
+            const autoStart = document.getElementById('autoStartSwitch').checked;
+            saveConfig(release, version, enabled, superkey, autoStart);
+            // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
         
@@ -100,8 +111,13 @@ function toggleModule() {
         output.innerHTML = errno === 0 ? `模块${isEnabled ? '启用' : '禁用'}成功: ${stdout.trim()}` : `模块${isEnabled ? '启用' : '禁用'}失败`;
         delete window[callback];
         
-        // 操作完成后刷新KPM状态
+        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
+            const release = document.getElementById('release').value.trim();
+            const version = document.getElementById('version').value.trim();
+            const autoStart = document.getElementById('autoStartSwitch').checked;
+            saveConfig(release, version, isEnabled, superkey, autoStart);
+            // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
         
@@ -113,11 +129,29 @@ function toggleModule() {
     ksu.exec(command, '{}', callback);
 }
 
+function toggleAutoStart() {
+    const output = document.getElementById('output');
+    const isEnabled = document.getElementById('autoStartSwitch').checked;
+    const superkey = document.getElementById('superkey').value.trim();
+    
+    output.innerHTML = isEnabled ? '开机自启已启用' : '开机自启已禁用';
+    
+    // 保存配置到文件
+    const release = document.getElementById('release').value.trim();
+    const version = document.getElementById('version').value.trim();
+    const moduleEnabled = document.getElementById('moduleSwitch').checked;
+    saveConfig(release, version, moduleEnabled, superkey, isEnabled);
+    
+    // 写入日志
+    writeLog(`toggleAutoStart: enabled=${isEnabled}`);
+}
+
 function setSwitchOn() {
     document.getElementById('moduleSwitch').checked = true;
 }
 
-// 写入日志函数
+
+
 function writeLog(message) {
     const timestamp = new Date().toISOString();
     const logMessage = `[${timestamp}] ${message}\n`;
@@ -127,9 +161,8 @@ function writeLog(message) {
         delete window[logCallback];
     };
     
-    // 确保日志目录存在并写入日志
-    const logDir = CONFIG.LOG_PATH.substring(0, CONFIG.LOG_PATH.lastIndexOf('/'));
-    const command = `mkdir -p ${logDir} && echo "${logMessage}" >> ${CONFIG.LOG_PATH}`;
+    // 使用shell命令将日志追加到文件
+    const command = `sh -c 'echo "${logMessage}" >> ${CONFIG.LOG_PATH}'`;
     ksu.exec(command, '{}', logCallback);
 }
 
@@ -227,10 +260,14 @@ window.getKpmStatus = getKpmStatus;
 window.clearLogs = clearLogs;
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('output').innerHTML = 'Welcome';
+    document.getElementById('output').innerHTML = '点击输入文本';
     
     // 监听开关变化
     document.getElementById('moduleSwitch').addEventListener('change', toggleModule);
+    document.getElementById('autoStartSwitch').addEventListener('change', toggleAutoStart);
+    
+    // 加载保存的配置
+    loadConfig();
     
     // 写入页面加载日志
     writeLog('Web界面已加载');
