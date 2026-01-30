@@ -19,8 +19,8 @@ char *concat(const char *s1, const char *s2)
 int main(int argc, char *argv[])
 {
     bool superkey_flag = 0;
-    bool action_flag  = false;
-    bool set_flag     = false;
+    bool action_flag = false;
+    bool set_flag = false;
 
     char *superkey = NULL;
     char *release = NULL;
@@ -31,15 +31,13 @@ int main(int argc, char *argv[])
     int option_index = 0;
     int parsed_count = 0;
 
-    static struct option long_opts[] = {
-        {"superkey",       required_argument, 0, 's'},
-        {"set-release",    required_argument, 0, 'r'},
-        {"set-version",    required_argument, 0, 'v'},
-        {"disable",        no_argument,       0, 'd'},
-        {"enable",         no_argument,       0, 'e'},
-        {"get-kpm-status", no_argument,       0, 'k'},
-        {0, 0, 0, 0}
-    };
+    static struct option long_opts[] = { { "superkey", required_argument, 0, 's' },
+                                         { "set-release", required_argument, 0, 'r' },
+                                         { "set-version", required_argument, 0, 'v' },
+                                         { "disable", no_argument, 0, 'd' },
+                                         { "enable", no_argument, 0, 'e' },
+                                         { "get-kpm-status", no_argument, 0, 'k' },
+                                         { 0, 0, 0, 0 } };
 
     while ((opt = getopt_long(argc, argv, "s:r:v:dek", long_opts, &option_index)) != -1) {
         parsed_count++;
@@ -50,7 +48,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
             superkey_flag = 1;
-            superkey      = optarg;
+            superkey = optarg;
             break;
 
         case 'r':
@@ -62,7 +60,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Error: --set-release specified multiple times.\n");
                 return 1;
             }
-            release  = optarg;
+            release = optarg;
             set_flag = true;
             break;
 
@@ -75,7 +73,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Error: --set-version specified multiple times.\n");
                 return 1;
             }
-            version  = optarg;
+            version = optarg;
             set_flag = true;
             break;
 
@@ -115,15 +113,17 @@ int main(int argc, char *argv[])
                 return 1;
             }
             sc_kpm_control(superkey, "SpoofUname", "STATUS", buf, sizeof(buf));
-            
+
             // 直接输出KPM的原始状态信息
             printf("%s", buf);
             return 0;
             break;
 
         default:
-            fprintf(stderr, "Usage: %s --superkey KEY "
-                            "((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
+            fprintf(stderr,
+                    "Usage: %s --superkey KEY "
+                    "((-d | -e) | (--set-release VER | --set-version VER) | -k)\n",
+                    argv[0]);
             return 1;
         }
     }
@@ -140,14 +140,16 @@ int main(int argc, char *argv[])
     // 检查是否第一个选项是 --superkey
     if (parsed_count < 1 || !superkey_flag) {
         fprintf(stderr, "Error: --superkey must be specified first.\n");
-        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
+        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n",
+                argv[0]);
         return 1;
     }
 
     // 检查是否指定了 set-release 或 set-version，或者是 -k 选项
     if (!release && !version && !action_flag) {
         fprintf(stderr, "Error: Must specify either (-d/-e), (--set-release/--set-version), or -k after --superkey.\n");
-        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n", argv[0]);
+        fprintf(stderr, "Usage: %s --superkey KEY ((-d | -e) | (--set-release VER | --set-version VER) | -k)\n",
+                argv[0]);
         return 1;
     }
 
@@ -157,7 +159,7 @@ int main(int argc, char *argv[])
     if (release) {
         sc_kpm_control(superkey, "SpoofUname", concat("SR ", release), buf, sizeof(buf));
     }
-    
+
     printf("Control result: %s\n", buf);
     return 0;
 }

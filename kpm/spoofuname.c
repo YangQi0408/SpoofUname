@@ -30,7 +30,7 @@ static void before_newuname(hook_fargs1_t *args, void *udata)
 {
     uid_t uid = current_uid();
     void __user *name __maybe_unused = (void __user *)syscall_argn(args, 0);
-    
+
     logkd("newuname called by uid: %d, args[0]: 0x%lx\n", uid, syscall_argn(args, 0));
 }
 
@@ -39,9 +39,9 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
     uid_t uid = current_uid();
     long ret = args->ret;
     void __user *name = (void __user *)syscall_argn(args, 0);
-    
+
     logkd("newuname returned: %ld for uid: %d, user buffer: 0x%lx\n", ret, uid, syscall_argn(args, 0));
-    
+
     // 检查用户空间指针是否有效
     if (!name) {
         logkd("uname user buffer is NULL, skipping modification\n");
@@ -53,12 +53,12 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
         // 修改release信息
         if (custom_release[0] != '\0') {
             char release[65];
-            
+
             // 尝试读取原始release信息
             if (compat_strncpy_from_user(release, (const char __user *)(name + 130), sizeof(release)) > 0) {
                 logkd("original uname release: %s\n", release);
             }
-            
+
             // 修改release信息为自定义内容
             int cplen = compat_copy_to_user((void __user *)(name + 130), custom_release, strlen(custom_release) + 1);
             if (cplen > 0) {
@@ -67,16 +67,16 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
                 logkd("failed to modify uname release\n");
             }
         }
-        
+
         // 修改version信息
         if (custom_version[0] != '\0') {
             char version[65];
-            
+
             // 尝试读取原始version信息
             if (compat_strncpy_from_user(version, (const char __user *)(name + 195), sizeof(version)) > 0) {
                 logkd("original uname version: %s\n", version);
             }
-            
+
             // 修改version信息为自定义内容
             int cplen = compat_copy_to_user((void __user *)(name + 195), custom_version, strlen(custom_version) + 1);
             if (cplen > 0) {
@@ -91,10 +91,10 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
 static long inline_hook_demo_init(const char *args, const char *event, void *__user reserved)
 {
     logkd("Spoof Uname init\n");
-    
+
     hook_err_t err = inline_hook_syscalln(__NR_uname, 1, before_newuname, after_newuname, NULL);
     logkd("uname hook result: %d\n", err);
-    
+
     if (err != 0) {
         logkd("Failed to hook uname syscall: %d\n", err);
         // 如果是重定位错误或重复错误，尝试继续
@@ -111,17 +111,17 @@ static long inline_hook_demo_init(const char *args, const char *event, void *__u
 static long inline_hook_control0(const char *args, char *__user out_msg, int outlen)
 {
     logkd("kpm control, args: %s\n", args ? args : "(null)");
-    
+
     char reply_msg[128];
     int reply_len = 0;
-    
+
     if (!args || !strncmp(args, "STATUS", 6)) {
-        reply_len = snprintf(reply_msg, sizeof(reply_msg), "modify: %s\nrelease: %s\nversion: %s", 
-                           modify_enabled ? "enabled" : "disabled", custom_release, custom_version);
+        reply_len = snprintf(reply_msg, sizeof(reply_msg), "modify: %s\nrelease: %s\nversion: %s",
+                             modify_enabled ? "enabled" : "disabled", custom_release, custom_version);
     } else if (!strncmp(args, "SR ", 3)) {
         const char *new_release = args + 3;
         int len = strlen(new_release);
-        
+
         if (len > 0 && len < 65) {
             strncpy(custom_release, new_release, sizeof(custom_release) - 1);
             custom_release[sizeof(custom_release) - 1] = '\0';
@@ -134,7 +134,7 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
     } else if (!strncmp(args, "SV ", 3)) {
         const char *new_version = args + 3;
         int len = strlen(new_version);
-        
+
         if (len > 0 && len < 65) {
             strncpy(custom_version, new_version, sizeof(custom_version) - 1);
             custom_version[sizeof(custom_version) - 1] = '\0';
@@ -155,7 +155,7 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
     } else {
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "Unknown command");
     }
-    
+
     if (out_msg && outlen > 0 && reply_len > 0) {
         int copy_len = min(reply_len + 1, outlen);
         if (compat_copy_to_user(out_msg, reply_msg, copy_len) <= 0) {
@@ -163,7 +163,7 @@ static long inline_hook_control0(const char *args, char *__user out_msg, int out
             return -1;
         }
     }
-    
+
     return 0;
 }
 
@@ -172,7 +172,7 @@ static long inline_hook_demo_exit(void *__user reserved)
     logkd("Spoof Uname exit\n");
     modify_enabled = 0;
     inline_unhook_syscalln(__NR_uname, before_newuname, after_newuname);
-    
+
     return 0;
 }
 
