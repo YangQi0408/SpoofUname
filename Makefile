@@ -4,14 +4,14 @@ APM_DIR := apm
 KPM_DIR := kpm
 
 ifndef ANDROID_NDK
-    $(error ANDROID_NDK环境变量未设置)
+    $(error ANDROID_NDK is not set)
 endif
 
 FULL_VER := $(shell git rev-list --count HEAD 2>/dev/null)-$(shell git rev-parse --short HEAD 2>/dev/null)
 APM_ZIP := $(BUILD_DIR)/SpoofUname_APM_$(VERSION)-$(FULL_VER).zip
 KPM_FILE := $(BUILD_DIR)/SpoofUname_KPM_$(VERSION)-$(FULL_VER).kpm
 
-.PHONY: all clean apm kpm install install-apm install-kpm kpm-build restore-version
+.PHONY: all clean apm kpm kpm-build restore-version update-version
 
 all: $(APM_ZIP) $(KPM_FILE) restore-version
 
@@ -47,27 +47,7 @@ update-version:
 restore-version:
 	@mv -f $(APM_DIR)/module.prop.bak $(APM_DIR)/module.prop 2>/dev/null || true
 
-install-apm: $(APM_ZIP)
-	adb wait-for-device && adb push $(APM_ZIP) /sdcard/
-
-install-kpm: $(KPM_FILE)
-	adb wait-for-device && adb push $(KPM_FILE) /sdcard/
-
-install: install-apm install-kpm
-
 clean:
 	@$(MAKE) -C $(APM_DIR)/cli clean
 	@$(MAKE) -C $(KPM_DIR) clean
 	@rm -rf $(BUILD_DIR) $(APM_DIR)/module.prop.bak
-
-help:
-	@echo "SpoofUname 构建系统"
-	@echo "  all          - 构建所有 (默认)"
-	@echo "  apm          - 仅构建APM"
-	@echo "  kpm          - 仅构建KPM"
-	@echo "  install      - 安装所有到设备"
-	@echo "  install-apm  - 仅安装APM到设备"
-	@echo "  install-kpm  - 仅安装KPM到设备"
-	@echo "  clean        - 清理所有构建文件"
-	@echo "  restore-version - 恢复module.prop原始版本"
-	@echo "  help         - 显示此帮助信息"
