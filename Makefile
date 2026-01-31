@@ -37,7 +37,7 @@ $(APM_DIR)/cli/build/spoof-uname-cli:
 	@$(MAKE) -C $(APM_DIR)/cli
 
 kpm-build:
-	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(FULL_VER)
+	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER)
 
 update-version:
 	@cp $(APM_DIR)/module.prop $(APM_DIR)/module.prop.bak

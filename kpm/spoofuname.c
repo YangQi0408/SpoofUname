@@ -16,6 +16,10 @@
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
+#ifndef MYKPM_VERSION
+#define MYKPM_VERSION "v0.0.1-1-unknown"
+#endif
+
 static char custom_release[65] = "";
 static char custom_version[65] = "";
 static int modify_enabled = 0;
