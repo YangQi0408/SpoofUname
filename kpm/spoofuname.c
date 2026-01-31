@@ -26,14 +26,6 @@ KPM_LICENSE("GPL v2");
 KPM_AUTHOR("YangQi0408");
 KPM_DESCRIPTION("Spoof Uname Information");
 
-static void before_newuname(hook_fargs1_t *args, void *udata)
-{
-    uid_t uid = current_uid();
-    void __user *name __maybe_unused = (void __user *)syscall_argn(args, 0);
-
-    logkd("newuname called by uid: %d, args[0]: 0x%lx\n", uid, syscall_argn(args, 0));
-}
-
 static void after_newuname(hook_fargs1_t *args, void *udata)
 {
     uid_t uid = current_uid();
@@ -92,7 +84,7 @@ static long inline_hook_demo_init(const char *args, const char *event, void *__u
 {
     logkd("Spoof Uname init\n");
 
-    hook_err_t err = inline_hook_syscalln(__NR_uname, 1, before_newuname, after_newuname, NULL);
+    hook_err_t err = inline_hook_syscalln(__NR_uname, 1, NULL, after_newuname, NULL);
     logkd("uname hook result: %d\n", err);
 
     if (err != 0) {
@@ -171,7 +163,7 @@ static long inline_hook_demo_exit(void *__user reserved)
 {
     logkd("Spoof Uname exit\n");
     modify_enabled = 0;
-    inline_unhook_syscalln(__NR_uname, before_newuname, after_newuname);
+    inline_unhook_syscalln(__NR_uname, NULL, after_newuname);
 
     return 0;
 }
