@@ -1,5 +1,5 @@
 // 配置管理模块
-const CONFIG_FILE = '/data/adb/modules/spoof_uname/config';
+const CONFIG_FILE = '/data/adb/modules/spoof_uname/config.sh';
 
 // 保存配置到文件
 function saveConfig(release, version, enabled, autoStart) {
