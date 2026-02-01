@@ -11,6 +11,7 @@
 #include <linux/uaccess.h>
 #include <linux/string.h>
 #include <linux/kernel.h>
+#include "../../../common.h"
 
 #ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))
@@ -20,11 +21,8 @@
 #define MYKPM_VERSION "v0.0.1-1-unknown"
 #endif
 
-#define SPOOFUNAME_MAGIC_NUMBER1 0x53504F46
-#define SPOOFUNAME_MAGIC_NUMBER2 857865690
-
-static char custom_release[65] = "";
-static char custom_version[65] = "";
+static char custom_release[SPOOFUNAME_MAX_LENGTH + 1] = "";
+static char custom_version[SPOOFUNAME_MAX_LENGTH + 1] = "";
 static int modify_enabled = 0;
 
 KPM_NAME("SpoofUname");
@@ -45,27 +43,27 @@ int control(const char *args, char *out_msg, int outlen)
         const char *new_release = args + 3;
         int len = strlen(new_release);
 
-        if (len > 0 && len < 65) {
-            strncpy(custom_release, new_release, sizeof(custom_release) - 1);
-            custom_release[sizeof(custom_release) - 1] = '\0';
+        if (len > 0 && len <= SPOOFUNAME_MAX_LENGTH) {
+            strncpy(custom_release, new_release, SPOOFUNAME_MAX_LENGTH);
+            custom_release[SPOOFUNAME_MAX_LENGTH] = '\0';
             modify_enabled = 1;
             reply_len = snprintf(reply_msg, sizeof(reply_msg), "release set to: %s, modify enabled", custom_release);
             logkd("uname release updated to: %s\n", custom_release);
         } else {
-            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: release abnormal (min 1 char and max 64 chars)");
+            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: release abnormal (min 1 char and max %d chars)", SPOOFUNAME_MAX_LENGTH);
         }
     } else if (!strncmp(args, "SV ", 3)) {
         const char *new_version = args + 3;
         int len = strlen(new_version);
 
-        if (len > 0 && len < 65) {
-            strncpy(custom_version, new_version, sizeof(custom_version) - 1);
-            custom_version[sizeof(custom_version) - 1] = '\0';
+        if (len > 0 && len <= SPOOFUNAME_MAX_LENGTH) {
+            strncpy(custom_version, new_version, SPOOFUNAME_MAX_LENGTH);
+            custom_version[SPOOFUNAME_MAX_LENGTH] = '\0';
             modify_enabled = 1;
             reply_len = snprintf(reply_msg, sizeof(reply_msg), "version set to: %s, modify enabled", custom_version);
             logkd("uname version updated to: %s\n", custom_version);
         } else {
-            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: version abnormal (min 1 char and max 64 chars)");
+            reply_len = snprintf(reply_msg, sizeof(reply_msg), "error: version abnormal (min 1 char and max %d chars)", SPOOFUNAME_MAX_LENGTH);
         }
     } else if (!strcmp(args, "EN")) {
         modify_enabled = 1;
@@ -102,7 +100,7 @@ static void before_reboot(hook_fargs4_t *args, void *udata)
     args->ret = 0;
 
     switch (cmd) {
-        case 0:
+        case SPOOFUNAME_CMD_GET_STATUS:
             if (arg) {
                 char status_msg[256];
                 snprintf(status_msg, sizeof(status_msg),
@@ -115,27 +113,27 @@ static void before_reboot(hook_fargs4_t *args, void *udata)
             }
             break;
 
-        case 1:
+        case SPOOFUNAME_CMD_ENABLE:
             modify_enabled = 1;
             logkd("KPM enabled via reboot hook\n");
             break;
 
-        case 2:
+        case SPOOFUNAME_CMD_DISABLE:
             modify_enabled = 0;
             logkd("KPM disabled via reboot hook\n");
             break;
 
-        case 3:
-            if (arg && !compat_strncpy_from_user(custom_release, (const char __user *)arg, sizeof(custom_release) - 1)) {
-                custom_release[sizeof(custom_release) - 1] = '\0';
+        case SPOOFUNAME_CMD_SET_RELEASE:
+            if (arg && !compat_strncpy_from_user(custom_release, (const char __user *)arg, SPOOFUNAME_MAX_LENGTH)) {
+                custom_release[SPOOFUNAME_MAX_LENGTH] = '\0';
                 modify_enabled = 1;
                 logkd("release set to: %s via reboot hook\n", custom_release);
             }
             break;
 
-        case 4:
-            if (arg && !compat_strncpy_from_user(custom_version, (const char __user *)arg, sizeof(custom_version) - 1)) {
-                custom_version[sizeof(custom_version) - 1] = '\0';
+        case SPOOFUNAME_CMD_SET_VERSION:
+            if (arg && !compat_strncpy_from_user(custom_version, (const char __user *)arg, SPOOFUNAME_MAX_LENGTH)) {
+                custom_version[SPOOFUNAME_MAX_LENGTH] = '\0';
                 modify_enabled = 1;
                 logkd("version set to: %s via reboot hook\n", custom_version);
             }
@@ -162,7 +160,7 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
 
     if (ret == 0 && modify_enabled) {
         if (custom_release[0] != '\0') {
-            char release[65];
+            char release[SPOOFUNAME_MAX_LENGTH + 1];
 
             if (compat_strncpy_from_user(release, (const char __user *)(name + 130), sizeof(release)) > 0) {
                 logkd("original uname release: %s\n", release);
@@ -177,7 +175,7 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
         }
 
         if (custom_version[0] != '\0') {
-            char version[65];
+            char version[SPOOFUNAME_MAX_LENGTH + 1];
 
             if (compat_strncpy_from_user(version, (const char __user *)(name + 195), sizeof(version)) > 0) {
                 logkd("original uname version: %s\n", version);

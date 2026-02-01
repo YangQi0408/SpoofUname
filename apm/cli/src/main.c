@@ -4,9 +4,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <stdbool.h>
-
-#define SPOOFUNAME_MAGIC_NUMBER1 0x53504F46
-#define SPOOFUNAME_MAGIC_NUMBER2 857865690
+#include "../../../common.h"
 
 void control(unsigned int cmd, char *buf)
 {
@@ -71,7 +69,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
             action_flag = true;
-            control(2, NULL);
+            control(SPOOFUNAME_CMD_DISABLE, NULL);
             printf("status=disabled\n");
             return 0;
             break;
@@ -82,7 +80,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
             action_flag = true;
-            control(1, NULL);
+            control(SPOOFUNAME_CMD_ENABLE, NULL);
             printf("status=enabled\n");
             return 0;
             break;
@@ -93,7 +91,7 @@ int main(int argc, char *argv[])
                 return 1;
             }
             action_flag = true;
-            control(0, status_buf);
+            control(SPOOFUNAME_CMD_GET_STATUS, status_buf);
             printf("%s", status_buf);
             return 0;
             break;
@@ -111,11 +109,11 @@ int main(int argc, char *argv[])
     }
 
     if (version) {
-        control(4, version);
+        control(SPOOFUNAME_CMD_SET_VERSION, version);
         printf("version=%s\n", version);
     }
     if (release) {
-        control(3, release);
+        control(SPOOFUNAME_CMD_SET_RELEASE, release);
         printf("release=%s\n", release);
     }
 
