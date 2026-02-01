@@ -2,16 +2,15 @@
 const CONFIG_FILE = '/data/adb/modules/spoof_uname/config';
 
 // 保存配置到文件
-function saveConfig(release, version, enabled, superkey, autoStart) {
+function saveConfig(release, version, enabled, autoStart) {
     const config = {
         release: release || '',
         version: version || '',
         enabled: enabled !== false,
-        superkey: superkey || '',
         autoStart: autoStart !== false
     };
     
-    const configText = `release=${config.release}\nversion=${config.version}\nenabled=${config.enabled ? 'true' : 'false'}\nsuperkey=${config.superkey}\nautostart=${config.autoStart ? 'true' : 'false'}\n`;
+    const configText = `release=${config.release}\nversion=${config.version}\nenabled=${config.enabled ? 'true' : 'false'}\nautostart=${config.autoStart ? 'true' : 'false'}\n`;
     
     const callback = `cb_${Date.now()}`;
     window[callback] = (errno, stdout) => {
@@ -52,7 +51,6 @@ function parseConfig(configText) {
         release: '',
         version: '',
         enabled: false,
-        superkey: '',
         autoStart: true
     };
     
@@ -61,7 +59,6 @@ function parseConfig(configText) {
         if (key === 'release') config.release = value;
         if (key === 'version') config.version = value;
         if (key === 'enabled') config.enabled = value === 'true';
-        if (key === 'superkey') config.superkey = value;
         if (key === 'autostart') config.autoStart = value === 'true';
     });
     
@@ -73,7 +70,6 @@ function updateUI(config) {
     document.getElementById('release').value = config.release;
     document.getElementById('version').value = config.version;
     document.getElementById('moduleSwitch').checked = config.enabled;
-    document.getElementById('superkey').value = config.superkey;
     document.getElementById('autoStartSwitch').checked = config.autoStart;
 }
 

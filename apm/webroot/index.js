@@ -24,11 +24,10 @@ function getUname() {
 
 function setRelease() {
     const output = document.getElementById('output');
-    const superkey = document.getElementById('superkey').value.trim();
     const release = document.getElementById('release').value.trim();
     
-    if (!superkey || !release) {
-        output.innerHTML = '请先输入 SuperKey 和 RELEASE';
+    if (!release) {
+        output.innerHTML = '请先输入 RELEASE';
         return;
     }
     
@@ -45,7 +44,7 @@ function setRelease() {
             const version = document.getElementById('version').value.trim();
             const enabled = document.getElementById('moduleSwitch').checked;
             const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, enabled, superkey, autoStart);
+            saveConfig(release, version, enabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -54,17 +53,16 @@ function setRelease() {
         writeLog(`setRelease: release=${release}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `${CONFIG.CLI_PATH} -s ${superkey} -r "${release}"`;
+    const command = `${CONFIG.CLI_PATH} --set-release "${release}"`;
     ksu.exec(command, '{}', callback);
 }
 
 function setVersion() {
     const output = document.getElementById('output');
-    const superkey = document.getElementById('superkey').value.trim();
     const version = document.getElementById('version').value.trim();
     
-    if (!superkey || !version) {
-        output.innerHTML = '请先输入 SuperKey 和 VERSION';
+    if (!version) {
+        output.innerHTML = '请先输入 VERSION';
         return;
     }
     
@@ -81,7 +79,7 @@ function setVersion() {
             const release = document.getElementById('release').value.trim();
             const enabled = document.getElementById('moduleSwitch').checked;
             const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, enabled, superkey, autoStart);
+            saveConfig(release, version, enabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -90,19 +88,13 @@ function setVersion() {
         writeLog(`setVersion: version=${version}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `${CONFIG.CLI_PATH} -s ${superkey} -v "${version}"`;
+    const command = `${CONFIG.CLI_PATH} --set-version "${version}"`;
     ksu.exec(command, '{}', callback);
 }
 
 function toggleModule() {
     const output = document.getElementById('output');
-    const superkey = document.getElementById('superkey').value.trim();
     const isEnabled = document.getElementById('moduleSwitch').checked;
-    
-    if (!superkey) {
-        output.innerHTML = '请先输入 SuperKey';
-        return;
-    }
     
     output.innerHTML = isEnabled ? '正在启用模块...' : '正在禁用模块...';
     
@@ -116,7 +108,7 @@ function toggleModule() {
             const release = document.getElementById('release').value.trim();
             const version = document.getElementById('version').value.trim();
             const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, isEnabled, superkey, autoStart);
+            saveConfig(release, version, isEnabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -125,14 +117,13 @@ function toggleModule() {
         writeLog(`toggleModule: enabled=${isEnabled}, errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `${CONFIG.CLI_PATH} -s ${superkey} ${isEnabled ? '-e' : '-d'}`;
+    const command = `${CONFIG.CLI_PATH} ${isEnabled ? '--enable' : '--disable'}`;
     ksu.exec(command, '{}', callback);
 }
 
 function toggleAutoStart() {
     const output = document.getElementById('output');
     const isEnabled = document.getElementById('autoStartSwitch').checked;
-    const superkey = document.getElementById('superkey').value.trim();
     
     output.innerHTML = isEnabled ? '开机自启已启用' : '开机自启已禁用';
     
@@ -140,7 +131,7 @@ function toggleAutoStart() {
     const release = document.getElementById('release').value.trim();
     const version = document.getElementById('version').value.trim();
     const moduleEnabled = document.getElementById('moduleSwitch').checked;
-    saveConfig(release, version, moduleEnabled, superkey, isEnabled);
+    saveConfig(release, version, moduleEnabled, isEnabled);
     
     // 写入日志
     writeLog(`toggleAutoStart: enabled=${isEnabled}`);
@@ -170,12 +161,6 @@ function getKpmStatus() {
     const output = document.getElementById('output');
     const kpmStatus = document.getElementById('kpmStatus');
     const kpmStatusContent = document.getElementById('kpmStatusContent');
-    const superkey = document.getElementById('superkey').value.trim();
-    
-    if (!superkey) {
-        output.innerHTML = '请先输入 SuperKey';
-        return;
-    }
     
     output.innerHTML = '正在获取 KPM 状态...';
     
@@ -217,7 +202,7 @@ function getKpmStatus() {
             kpmStatus.style.display = 'block';
             output.innerHTML = 'KPM 状态已更新';
         } else {
-            output.innerHTML = '获取 KPM 状态失败，请检查 SuperKey 是否正确';
+            output.innerHTML = '获取 KPM 状态失败';
         }
         delete window[callback];
         
@@ -225,7 +210,7 @@ function getKpmStatus() {
         writeLog(`getKpmStatus: errno=${errno}, stdout=${stdout.trim()}`);
     };
     
-    const command = `${CONFIG.CLI_PATH} -s ${superkey} -k`;
+    const command = `${CONFIG.CLI_PATH} --status`;
     ksu.exec(command, '{}', callback);
 }
 

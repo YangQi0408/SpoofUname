@@ -1,7 +1,5 @@
 #!/system/bin/sh
 
-
-
 MODDIR="/data/adb/modules/spoof_uname"
 CONFIG_FILE="$MODDIR/config"
 CLI_PATH="$MODDIR/bin/spoof-uname-cli"
@@ -42,15 +40,15 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 开始注入配置到KPM模块"
 
 if [ -n "$RELEASE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 设置Release: $RELEASE" >> "$MODDIR/log/log.txt"
-    $CLI_PATH -s "$SUPERKEY" -r "$RELEASE"
+    $CLI_PATH --set-release "$RELEASE"
 fi
 
 if [ -n "$VERSION" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 设置Version: $VERSION" >> "$MODDIR/log/log.txt"
-    $CLI_PATH -s "$SUPERKEY" -v "$VERSION"
+    $CLI_PATH --set-version "$VERSION"
 fi
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 启用模块" >> "$MODDIR/log/log.txt"
-$CLI_PATH -s "$SUPERKEY" -e
+$CLI_PATH --enable
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 配置注入完成" >> "$MODDIR/log/log.txt"
