@@ -38,13 +38,8 @@ function setRelease() {
         output.innerHTML = errno === 0 ? `设置 RELEASE 成功: ${stdout.trim()}` : '设置 RELEASE 失败';
         delete window[callback];
         
-        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
             setSwitchOn();
-            const version = document.getElementById('version').value.trim();
-            const enabled = document.getElementById('moduleSwitch').checked;
-            const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, enabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -73,13 +68,8 @@ function setVersion() {
         output.innerHTML = errno === 0 ? `设置 VERSION 成功: ${stdout.trim()}` : '设置 VERSION 失败';
         delete window[callback];
         
-        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
             setSwitchOn();
-            const release = document.getElementById('release').value.trim();
-            const enabled = document.getElementById('moduleSwitch').checked;
-            const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, enabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -103,12 +93,7 @@ function toggleModule() {
         output.innerHTML = errno === 0 ? `模块${isEnabled ? '启用' : '禁用'}成功: ${stdout.trim()}` : `模块${isEnabled ? '启用' : '禁用'}失败`;
         delete window[callback];
         
-        // 设置完成后保存配置到文件并刷新状态
         if (errno === 0) {
-            const release = document.getElementById('release').value.trim();
-            const version = document.getElementById('version').value.trim();
-            const autoStart = document.getElementById('autoStartSwitch').checked;
-            saveConfig(release, version, isEnabled, autoStart);
             // 刷新KPM状态
             setTimeout(() => getKpmStatus(), 500);
         }
@@ -126,12 +111,6 @@ function toggleAutoStart() {
     const isEnabled = document.getElementById('autoStartSwitch').checked;
     
     output.innerHTML = isEnabled ? '开机自启已启用' : '开机自启已禁用';
-    
-    // 保存配置到文件
-    const release = document.getElementById('release').value.trim();
-    const version = document.getElementById('version').value.trim();
-    const moduleEnabled = document.getElementById('moduleSwitch').checked;
-    saveConfig(release, version, moduleEnabled, isEnabled);
     
     // 写入日志
     writeLog(`toggleAutoStart: enabled=${isEnabled}`);
@@ -214,6 +193,43 @@ function getKpmStatus() {
     ksu.exec(command, '{}', callback);
 }
 
+function saveConfigFile() {
+    const output = document.getElementById('output');
+    const release = document.getElementById('release').value.trim();
+    const version = document.getElementById('version').value.trim();
+    const enabled = document.getElementById('moduleSwitch').checked;
+    const autoStart = document.getElementById('autoStartSwitch').checked;
+    
+    output.innerHTML = '正在保存配置...';
+    
+    saveConfig(release, version, enabled, autoStart);
+    output.innerHTML = '配置已保存';
+    writeLog('saveConfigFile: 配置已保存');
+}
+
+window.getUname = getUname;
+window.setRelease = setRelease;
+window.setVersion = setVersion;
+window.toggleModule = toggleModule;
+window.writeLog = writeLog;
+window.getKpmStatus = getKpmStatus;
+window.clearLogs = clearLogs;
+window.saveConfigFile = saveConfigFile;
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('output').innerHTML = '点击输入文本';
+    
+    // 监听开关变化
+    document.getElementById('moduleSwitch').addEventListener('change', toggleModule);
+    document.getElementById('autoStartSwitch').addEventListener('change', toggleAutoStart);
+    
+    // 加载保存的配置
+    loadConfig();
+    
+    // 写入页面加载日志
+    writeLog('Web界面已加载');
+});
+
 // 清除日志功能
 function clearLogs() {
     const output = document.getElementById('output');
@@ -243,6 +259,7 @@ window.toggleModule = toggleModule;
 window.writeLog = writeLog;
 window.getKpmStatus = getKpmStatus;
 window.clearLogs = clearLogs;
+window.saveConfigFile = saveConfigFile;
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('output').innerHTML = '点击输入文本';
