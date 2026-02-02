@@ -4,16 +4,16 @@
 
 **由于作者个人原因，该项目不会被积极开发。**
 
-**警告：**
-APM暂不适配SukiSU Ultra，如需使用请手动控制KPM。
+## 兼容性
+理论上支持所有KernelPatch和Root实现。
 
 ## 使用方法
-### APatch
 1. 下载APM和KPM。
 2. 加载/嵌入KPM。
 3. 安装APM。
 4. 重启（如果在第2步时使用了加载的方式，重启后应重新加载KPM）。
-5. 通过APM的Webui进行控制。
+5. 通过APM的WebUI进行控制。
+（如果需要使用开机自启就必须嵌入）
 
 ### WebUI功能
 APM提供了一个Web界面，方便用户进行模块控制：
@@ -25,26 +25,27 @@ APM提供了一个Web界面，方便用户进行模块控制：
 - **获取KPM状态** - 查看模块当前状态和配置
 - **模块开关** - 启用/禁用模块功能
 - **清除日志** - 清理操作日志文件
+- **保存配置** - 保存当前配置到文件
 
 **使用步骤：**
-1. 在Superkey字段输入认证密钥
-2. 在Release/Version字段输入要伪装的信息
-3. 使用相应按钮执行操作
-4. KPM状态区域会实时显示模块状态
-5. 操作结果显示在下方的输出区域
+1. 在Release/Version字段输入要伪装的信息
+2. 使用相应按钮执行操作
+3. KPM状态区域会实时显示模块状态
+4. 操作结果显示在下方的输出区域
 
 **日志管理：**
 - 日志文件位置：`/data/adb/modules/spoof_uname/log/log.txt`
 - 所有操作都会记录在日志中，便于调试和问题排查
 - 可通过"清除日志"按钮清理日志文件
+
 ### 手动控制KPM
-在管理器的KPM页面，点击“参数”并输入命令。
+在管理器的KPM页面，点击"参数"并输入命令。
 
 命令清单：
 
-SR \<Release\>   - 修改Release，如“SR 6.1.114514”
+SR \<Release\>   - 修改Release，如"SR 6.1.114514"
 
-SV \<Version\>   - 修改Version，如“SV #1 SMP PREEMPT Wed Aug 20 07:17:20 UTC 2025 aarch64 Toybox”
+SV \<Version\>   - 修改Version，如"SV #1 SMP PREEMPT Wed Aug 20 07:17:20 UTC 2025 aarch64 Toybox"
 
 EN              - 启用模块
 
@@ -64,8 +65,8 @@ SpoofUname/
 │   └── webroot/              # Web界面
 │       ├── index.html        # 主页面
 │       ├── index.js          # JavaScript逻辑
-│       ├── package.json      # 依赖配置
-│       └── node_modules/     # 依赖包
+│       ├── config.js         # 配置管理
+│       └── package.json      # 依赖配置
 ├── kpm/                      # Kernel Patch Module
 │   ├── spoofuname.c          # KPM源码
 │   ├── kernel/               # 内核头文件
@@ -82,13 +83,7 @@ SpoofUname/
 ### 构建步骤
 ```bash
 # 构建所有组件
-make all
-
-# 仅构建APM
-make apm
-
-# 仅构建KPM
-make kpm
+make
 
 # 清理构建文件
 make clean
@@ -101,9 +96,10 @@ make clean
 ## 注意事项
 - 修改内核信息可能影响某些应用的兼容性
 - 建议在测试环境中先验证功能
-- 日志文件会记录所有操作，但不会记录敏感信息（如SuperKey）
+- 日志文件会记录所有操作，便于调试和问题排查
 - 模块禁用后，uname信息会恢复为原始值
-- 请妥善保管SuperKey，切勿泄露给他人
+- 配置文件位于：`/data/adb/modules/spoof_uname/config.sh`
+- 开机自启功能需要APatch或KernelSU原生模式
 
 ## 感谢
 [KernelPatch](https://github.com/bmax121/KernelPatch/)： 核心功能。
