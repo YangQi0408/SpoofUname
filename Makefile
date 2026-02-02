@@ -25,7 +25,7 @@ kpm: $(KPM_FILE)
 $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli | update-version
 	@mkdir -p $(BUILD_DIR)/apm_temp/webroot $(BUILD_DIR)/apm_temp/bin
 	@cp $(APM_DIR)/module.prop $(APM_DIR)/customize.sh $(APM_DIR)/post-fs-data.sh $(BUILD_DIR)/apm_temp/
-	@cp $(APM_DIR)/webroot/{index.html,index.js,config.js} $(BUILD_DIR)/apm_temp/webroot/
+	@cp $(APM_DIR)/webroot/index.html $(APM_DIR)/webroot/index.js $(APM_DIR)/webroot/config.js $(BUILD_DIR)/apm_temp/webroot/
 	@cp $(APM_DIR)/cli/build/spoof-uname-cli $(BUILD_DIR)/apm_temp/bin/
 	@cd $(BUILD_DIR)/apm_temp && zip -r ../SpoofUname_APM_$(VERSION)-$(FULL_VER).zip .
 	@rm -rf $(BUILD_DIR)/apm_temp
