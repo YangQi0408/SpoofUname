@@ -5,7 +5,6 @@ LOG_FILE="$MODDIR/log/log.txt"
 mkdir -p "$MODDIR/log"
 touch "$LOG_FILE"
 
-sleep 10
 if [ ! -f "$CLI_PATH" ]; then
     exit 0
 fi
@@ -27,6 +26,16 @@ fi
 if [ -n "$version" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 设置Version: $version" >> "$LOG_FILE"
     $CLI_PATH --set-version "$version"
+fi
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 设置内核属性" >> "$LOG_FILE"
+
+if [ -n "$release" ]; then
+    kernel_full=$(echo "$release" | sed 's/-.*//' | cut -d'.' -f1-3)
+    kernel_short=$(echo "$release" | sed 's/-.*//' | cut -d'.' -f1-2)
+    resetprop -n ro.build.kernel.id "$kernel_full"
+    resetprop -n ro.kernel.version "$kernel_short"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: ro.build.kernel.id=$kernel_full, ro.kernel.version=$kernel_short" >> "$LOG_FILE"
 fi
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] SpoofUname: 启用模块" >> "$LOG_FILE"
