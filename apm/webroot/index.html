@@ -5,56 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpoofUname</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
         }
         .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 18px;
         }
         h1 {
             color: #333;
             text-align: center;
+            margin-bottom: 16px;
+            font-size: 22px;
+            font-weight: 700;
         }
-        .status {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            background-color: #e8f5e8;
-            border: 1px solid #4caf50;
+        .section {
+            margin-bottom: 14px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
         }
-        button {
-            background-color: #2196f3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 5px;
+        .section h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        button:hover {
-            background-color: #1976d2;
+        .section h3::before {
+            content: '';
+            width: 3px;
+            height: 13px;
+            background: #667eea;
+            border-radius: 2px;
         }
-        
-        /* 开关样式 */
+        .input-group {
+            margin-bottom: 8px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 12px;
+        }
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 6px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        .switch-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .switch-group label {
+            color: #495057;
+            font-weight: 500;
+            font-size: 12px;
+        }
         .switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
-            margin-left: 10px;
+            width: 40px;
+            height: 22px;
         }
-        
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
         .slider {
             position: absolute;
             cursor: pointer;
@@ -62,29 +106,107 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+            background-color: #dee2e6;
+            transition: .3s;
+            border-radius: 22px;
         }
-        
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        
         input:checked + .slider {
-            background-color: #2196f3;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
         input:checked + .slider:before {
-            transform: translateX(26px);
+            transform: translateX(18px);
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .button-group.secondary {
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(102, 126, 234, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.secondary {
+            background: #6c757d;
+            box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+        }
+        button.secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 3px 6px rgba(108, 117, 125, 0.3);
+        }
+        #kpmStatus {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #kpmStatus h4 {
+            color: #004085;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        #kpmStatusContent {
+            color: #0056b3;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        #output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 40px;
+            font-size: 12px;
+            color: #495057;
+            line-height: 1.4;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .status-badge.enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-badge.disabled {
+            background: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -92,48 +214,61 @@
     <div class="container">
         <h1>SpoofUname</h1>
         
-        <div style="margin: 10px 0;">
-            <label for="release">Release:</label>
-            <input type="text" id="release" placeholder="请输入 Release" style="margin-left: 10px; padding: 5px; width: 200px;">
-        </div>
-        <div style="margin: 10px 0;">
-            <label for="version">Version:</label>
-            <input type="text" id="version" placeholder="请输入 Version" style="margin-left: 10px; padding: 5px; width: 200px;">
-        </div>
-        <div style="margin: 10px 0;">
-            <label for="moduleSwitch">模块开关:</label>
-            <label class="switch">
-                <input type="checkbox" id="moduleSwitch" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div style="margin: 10px 0;">
-            <label for="autoStartSwitch">开机自启:</label>
-            <label class="switch">
-                <input type="checkbox" id="autoStartSwitch" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-        <button onclick="getUname()">获取 Uname</button>
-        <button onclick="setRelease()">设置 RELEASE</button>
-        <button onclick="setVersion()">设置 VERSION</button>
-        <button onclick="getKpmStatus()">获取 KPM 状态</button>
-        <button onclick="clearLogs()">清除日志</button>
-        <button onclick="saveConfigFile()">保存配置</button>
-        
-        <!-- KPM 状态显示区域 -->
-        <div id="kpmStatus" style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 5px; border: 1px solid #ddd; display: none;">
-            <h4 style="margin: 0 0 10px 0;">SpoofUname 状态</h4>
-            <div id="kpmStatusContent"></div>
+        <div class="section">
+            <h3>配置信息</h3>
+            <div class="input-group">
+                <label for="release">Release</label>
+                <input type="text" id="release" placeholder="请输入 Release">
+            </div>
+            <div class="input-group">
+                <label for="version">Version</label>
+                <input type="text" id="version" placeholder="请输入 Version">
+            </div>
+            <div class="switch-group">
+                <label for="moduleSwitch">模块开关</label>
+                <label class="switch">
+                    <input type="checkbox" id="moduleSwitch" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="switch-group">
+                <label for="autoStartSwitch">开机自启</label>
+                <label class="switch">
+                    <input type="checkbox" id="autoStartSwitch" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
         
-        <!-- 操作结果输出区域 -->
-        <div id="output" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"></div>
+        <div class="section">
+            <h3>操作</h3>
+            <div class="button-group">
+                <button onclick="getUname()">获取 Uname</button>
+                <button onclick="setRelease()">设置 RELEASE</button>
+                <button onclick="setVersion()">设置 VERSION</button>
+                <button onclick="getKpmStatus()">获取 KPM 状态</button>
+            </div>
+            <div class="button-group secondary">
+                <button onclick="clearLogs()" class="secondary">清除日志</button>
+                <button onclick="saveConfigFile()" class="secondary">保存配置</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>KPM 状态</h3>
+            <div id="kpmStatus" style="display: none;">
+                <h4>SpoofUname 状态</h4>
+                <div id="kpmStatusContent"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>输出</h3>
+            <div id="output"></div>
+        </div>
     </div>
 
-<!-- 引入配置管理模块 -->
     <script src="config.js"></script>
-    <!-- 引入KernelSU WebUI主逻辑 -->
     <script type="module" src="index.js"></script>
 </body>
 </html>

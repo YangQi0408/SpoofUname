@@ -207,30 +207,6 @@ function saveConfigFile() {
     writeLog('saveConfigFile: 配置已保存');
 }
 
-window.getUname = getUname;
-window.setRelease = setRelease;
-window.setVersion = setVersion;
-window.toggleModule = toggleModule;
-window.writeLog = writeLog;
-window.getKpmStatus = getKpmStatus;
-window.clearLogs = clearLogs;
-window.saveConfigFile = saveConfigFile;
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('output').innerHTML = '点击输入文本';
-    
-    // 监听开关变化
-    document.getElementById('moduleSwitch').addEventListener('change', toggleModule);
-    document.getElementById('autoStartSwitch').addEventListener('change', toggleAutoStart);
-    
-    // 加载保存的配置
-    loadConfig();
-    
-    // 写入页面加载日志
-    writeLog('Web界面已加载');
-});
-
-// 清除日志功能
 function clearLogs() {
     const output = document.getElementById('output');
     output.innerHTML = '正在清除日志...';
@@ -246,7 +222,6 @@ function clearLogs() {
         delete window[callback];
     };
     
-    // 删除日志文件并重新创建空文件
     const logDir = CONFIG.LOG_PATH.substring(0, CONFIG.LOG_PATH.lastIndexOf('/'));
     const command = `rm -f ${CONFIG.LOG_PATH} && mkdir -p ${logDir} && touch ${CONFIG.LOG_PATH}`;
     ksu.exec(command, '{}', callback);
@@ -262,15 +237,12 @@ window.clearLogs = clearLogs;
 window.saveConfigFile = saveConfigFile;
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('output').innerHTML = '点击输入文本';
+    document.getElementById('output').innerHTML = '记得保存配置！！！';
     
-    // 监听开关变化
     document.getElementById('moduleSwitch').addEventListener('change', toggleModule);
     document.getElementById('autoStartSwitch').addEventListener('change', toggleAutoStart);
     
-    // 加载保存的配置
     loadConfig();
     
-    // 写入页面加载日志
     writeLog('Web界面已加载');
 });
