@@ -25,12 +25,7 @@ function getUname() {
 function setRelease() {
     const output = document.getElementById('output');
     const release = document.getElementById('release').value.trim();
-    
-    if (!release) {
-        output.innerHTML = '请先输入 RELEASE';
-        return;
-    }
-    
+
     output.innerHTML = '正在设置 RELEASE...';
     
     const callback = `cb_${Date.now()}`;
@@ -55,12 +50,7 @@ function setRelease() {
 function setVersion() {
     const output = document.getElementById('output');
     const version = document.getElementById('version').value.trim();
-    
-    if (!version) {
-        output.innerHTML = '请先输入 VERSION';
-        return;
-    }
-    
+
     output.innerHTML = '正在设置 VERSION...';
     
     const callback = `cb_${Date.now()}`;
