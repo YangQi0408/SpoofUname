@@ -10,7 +10,7 @@ function saveConfig(release, version, enabled, autoStart) {
         autoStart: autoStart !== false
     };
     
-    const configText = `release=${config.release}\nversion=${config.version}\nenabled=${config.enabled ? 'true' : 'false'}\nautostart=${config.autoStart ? 'true' : 'false'}\n`;
+    const shellQuote = (value) => `'${String(value).replace(/'/g, `'"'"'`)}'`;
     
     const callback = `cb_${Date.now()}`;
     window[callback] = (errno, stdout) => {
@@ -22,8 +22,8 @@ function saveConfig(release, version, enabled, autoStart) {
         delete window[callback];
     };
     
-    // 使用shell命令写入配置文件
-    const command = `sh -c 'echo "${configText}" > ${CONFIG_FILE}'`;
+    // 使用printf写入配置文件，保证version以#开头时也能保留引号
+    const command = `printf 'release="%s"\nversion="%s"\nenabled=%s\nautostart=%s\n' ${shellQuote(config.release)} ${shellQuote(config.version)} ${config.enabled ? 'true' : 'false'} ${config.autoStart ? 'true' : 'false'} > ${CONFIG_FILE}`;
     ksu.exec(command, '{}', callback);
 }
 
@@ -46,6 +46,15 @@ function loadConfig() {
 
 // 解析配置文本
 function parseConfig(configText) {
+    const unquoteValue = (value) => {
+        if (!value) return '';
+        const trimmed = value.trim();
+        if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+            return trimmed.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        }
+        return trimmed;
+    };
+
     const lines = configText.trim().split('\n');
     const config = {
         release: '',
@@ -55,9 +64,12 @@ function parseConfig(configText) {
     };
     
     lines.forEach(line => {
-        const [key, value] = line.split('=');
-        if (key === 'release') config.release = value;
-        if (key === 'version') config.version = value;
+        const equalPos = line.indexOf('=');
+        if (equalPos <= 0) return;
+        const key = line.substring(0, equalPos);
+        const value = line.substring(equalPos + 1);
+        if (key === 'release') config.release = unquoteValue(value);
+        if (key === 'version') config.version = unquoteValue(value);
         if (key === 'enabled') config.enabled = value === 'true';
         if (key === 'autostart') config.autoStart = value === 'true';
     });
