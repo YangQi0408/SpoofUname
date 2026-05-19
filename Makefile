@@ -39,7 +39,7 @@ $(APM_DIR)/cli/build/spoof-uname-cli:
 	@$(MAKE) -C $(APM_DIR)/cli
 
 kpm-build:
-	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER)
+	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch
 
 clean:
 	@$(MAKE) -C $(APM_DIR)/cli clean

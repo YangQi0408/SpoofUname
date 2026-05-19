@@ -1,6 +1,6 @@
 MYKPM_VERSION ?= v0.0.0
 BUILD_DIR := build
-KP_DIR ?= .
+KP_DIR ?= ../third_party/KernelPatch
 
 HOST_TAG := $(shell uname | tr A-Z a-z)-$(shell uname -m)
 ifeq ($(HOST_TAG), darwin-arm64)

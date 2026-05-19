@@ -1,7 +1,5 @@
 .cache/
 
-KernelPatch/
-
 build/
 
 apm/cli/build/
