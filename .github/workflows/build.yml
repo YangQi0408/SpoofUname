@@ -5,10 +5,13 @@ on:
     branches: main
   pull_request:
     branches: main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -16,6 +19,13 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Generate version
+        id: parse_version
+        run: |
+          FULL_VER=$(git rev-list --count HEAD)-$(git rev-parse --short HEAD)
+          echo "VERSION=$FULL_VER" >> $GITHUB_OUTPUT
+          echo "Generated Version: $FULL_VER"
 
       - name: Install dependencies
         run: |
@@ -31,22 +41,28 @@ jobs:
           make clean
           make all
 
-      - name: Upload APM
-        uses: actions/upload-artifact@v4
+      - name: Release to GitHub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: ncipollo/release-action@v1.14.0
         with:
-          name: SpoofUname_APM
-          path: build/*.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: v${{ steps.parse_version.outputs.VERSION }}
+          name: SpoofUname v${{ steps.parse_version.outputs.VERSION }}
+          artifacts: |
+            build/SpoofUname_APM_*.zip
+            build/SpoofUname_KPM_v*.kpm
+            build/SpoofUname_KPM_debug_*.kpm
+          generateReleaseNotes: true
+          allowUpdates: true
+          replacesArtifacts: true
+          prerelease: true
 
-      - name: Upload KPM
+      - name: Upload artifacts (PR only)
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: SpoofUname_KPM
-          path: build/SpoofUname_KPM_v*.kpm
-          if-no-files-found: error
-
-      - name: Upload KPM (Debug)
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpoofUname_KPM_Debug
-          path: build/SpoofUname_KPM_debug_*.kpm
-          if-no-files-found: error
+          name: build-artifacts
+          path: |
+            build/SpoofUname_APM_*.zip
+            build/SpoofUname_KPM_v*.kpm
+            build/SpoofUname_KPM_debug_*.kpm
