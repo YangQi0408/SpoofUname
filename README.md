@@ -1,36 +1,42 @@
 # SpoofUname
-## 简介
-使用KernelPatch的内核模块进行Uname信息修改，理论上支持3.18及以上的内核，灵感来源于https://t.me/PrslcChannel/63
 
-**由于作者个人原因，该项目不会被积极开发。**
+使用 KernelPatch 的内核模块进行 Uname 信息修改，理论上支持 3.18 及以上的内核。
+
+灵感来源于 [PrslcChannel](https://t.me/PrslcChannel/63)
+
+> **由于作者个人原因，该项目不会被积极开发。**
 
 ## 兼容性
-理论上支持所有KernelPatch和Root实现。
+
+理论上支持所有 KernelPatch 和 Root 实现。
 
 ## 使用方法
-1. 下载APM和KPM。
-2. 加载/嵌入KPM。
-3. 安装APM。
-4. 重启（如果在第2步时使用了加载的方式，重启后应重新加载KPM）。
-5. 通过APM的WebUI进行控制。
-（如果需要使用开机自启就必须嵌入）
 
-### WebUI功能
-APM提供了一个Web界面，方便用户进行模块控制：
+1. 下载 APM 和 KPM
+2. 加载/嵌入 KPM
+3. 安装 APM
+4. 重启（如果在第 2 步时使用了加载的方式，重启后应重新加载 KPM）
+5. 通过 APM 的 WebUI 进行控制
+
+> 如果需要使用开机自启就必须嵌入 KPM。
+
+### WebUI 功能
+
+APM 提供了一个 Web 界面，方便用户进行模块控制：
 
 **主要功能：**
-- **获取Uname** - 显示当前系统信息
-- **设置RELEASE** - 修改内核release信息
-- **设置VERSION** - 修改内核version信息
-- **获取KPM状态** - 查看模块当前状态和配置
-- **模块开关** - 启用/禁用模块功能
-- **清除日志** - 清理操作日志文件
-- **保存配置** - 保存当前配置到文件
+- **获取 Uname** — 显示当前系统信息
+- **设置 RELEASE** — 修改内核 release 信息
+- **设置 VERSION** — 修改内核 version 信息
+- **获取 KPM 状态** — 查看模块当前状态和配置
+- **模块开关** — 启用/禁用模块功能
+- **清除日志** — 清理操作日志文件
+- **保存配置** — 保存当前配置到文件
 
 **使用步骤：**
-1. 在Release/Version字段输入要伪装的信息
+1. 在 Release/Version 字段输入要伪装的信息
 2. 使用相应按钮执行操作
-3. KPM状态区域会实时显示模块状态
+3. KPM 状态区域会实时显示模块状态
 4. 操作结果显示在下方的输出区域
 
 **日志管理：**
@@ -38,70 +44,107 @@ APM提供了一个Web界面，方便用户进行模块控制：
 - 所有操作都会记录在日志中，便于调试和问题排查
 - 可通过"清除日志"按钮清理日志文件
 
-### 手动控制KPM
-在管理器的KPM页面，点击"参数"并输入命令。
+### 手动控制 KPM
 
-命令清单：
+在管理器的 KPM 页面，点击"参数"并输入命令：
 
-SR \<Release\>   - 修改Release，如"SR 6.1.114514"
-
-SV \<Version\>   - 修改Version，如"SV #1 SMP PREEMPT Wed Aug 20 07:17:20 UTC 2025 aarch64 Toybox"
-
-EN              - 启用模块
-
-DIS             - 关闭模块
+| 命令 | 说明 |
+|------|------|
+| `SR <Release>` | 修改 Release，如 `SR 6.1.114514` |
+| `SV <Version>` | 修改 Version，如 `SV #1 SMP PREEMPT Wed Aug 20 07:17:20 UTC 2025 aarch64 Toybox` |
+| `EN` | 启用模块 |
+| `DIS` | 关闭模块 |
 
 ## 项目结构
+
 ```
 SpoofUname/
-├── README.md                 # 项目说明文档
-├── Makefile                  # 构建脚本
-├── LICENSE                   # 许可证文件
-├── apm/                      # Android Patch Module
-│   ├── module.prop           # 模块属性文件
-│   ├── cli/                  # 命令行工具
-│   │   ├── src/main.c        # CLI源码
-│   │   └── Makefile          # CLI构建脚本
-│   └── webroot/              # Web界面
-│       ├── index.html        # 主页面
-│       ├── index.js          # JavaScript逻辑
-│       ├── config.js         # 配置管理
-│       └── package.json      # 依赖配置
-├── kpm/                      # Kernel Patch Module
-│   ├── spoofuname.c          # KPM源码
-│   ├── kernel/               # 内核头文件
-│   └── Makefile              # KPM构建脚本
-└── build/                    # 构建输出目录
+├── Makefile                   # 顶层构建脚本
+├── .gitmodules                # 子模块配置
+├── LICENSE                    # 许可证文件
+├── apm/                       # Android Patch Module
+│   ├── module.prop            # 模块属性文件
+│   ├── customize.sh           # 安装脚本
+│   ├── post-fs-data.sh        # 开机自启脚本
+│   ├── cli/                   # 命令行工具
+│   │   ├── src/main.c
+│   │   └── Makefile
+│   └── webroot/               # WebUI 界面
+│       ├── index.html
+│       ├── index.js
+│       └── config.js
+├── common.h                   # KPM 和 APM 共享的头文件
+├── kpm/                       # Kernel Patch Module
+│   ├── spoofuname.c           # KPM 核心源码
+│   └── Makefile               # KPM 构建脚本
+├── third_party/               # 第三方依赖
+│   └── KernelPatch/           # KernelPatch 子模块
+├── .github/workflows/         # CI 工作流
+│   └── build.yml
+└── build/                     # 构建输出目录
 ```
 
+> `third_party/KernelPatch` 为 git 子模块，克隆后需执行 `git submodule update --init --recursive`。
+
 ## 构建说明
+
 ### 环境要求
-- Android NDK (用于编译ARM64架构)
+
+- **Android NDK**（用于编译 ARM64 架构）
 - Git
 - Make
 
 ### 构建步骤
+
 ```bash
-# 构建所有组件
-make
+# 克隆仓库并初始化子模块
+git clone --recursive https://github.com/<your-repo>/SpoofUname
+cd SpoofUname
+
+# 构建所有组件（同时产出无日志和带日志两个 KPM 版本）
+ANDROID_NDK=/path/to/ndk make
+
+# 仅构建 APM
+ANDROID_NDK=/path/to/ndk make apm
+
+# 仅构建 KPM（无日志）
+ANDROID_NDK=/path/to/ndk make kpm-release
+
+# 仅构建 KPM（带日志）
+ANDROID_NDK=/path/to/ndk make kpm-debug
 
 # 清理构建文件
 make clean
 ```
 
 ### 输出文件
-- `build/SpoofUname_APM_*.zip` - APM模块包
-- `build/SpoofUname_KPM_*.kpm` - KPM内核模块
+
+| 文件 | 说明 |
+|------|------|
+| `build/SpoofUname_APM_*.zip` | APM 模块包（CLI + WebUI + 启动脚本） |
+| `build/SpoofUname_KPM_*.kpm` | KPM 内核模块（无日志，适合日常使用） |
+| `build/SpoofUname_KPM_debug_*.kpm` | KPM 内核模块（带日志，用于调试） |
+
+> DEBUG 版本会输出内核日志到 `dmesg`，便于开发调试。**请勿在正式环境中使用 DEBUG 版本**，大量日志可能导致 `logd` 内存持续增长。
+
+### 通过 GitHub Actions 构建
+
+推送至 `main` 分支时，CI 会自动构建并发布 Pre-release，产物为原始文件，无额外 zip 层。
 
 ## 注意事项
+
 - 修改内核信息可能影响某些应用的兼容性
 - 建议在测试环境中先验证功能
 - 日志文件会记录所有操作，便于调试和问题排查
-- 模块禁用后，uname信息会恢复为原始值
+- 模块禁用后，uname 信息会恢复为原始值
 - 配置文件位于：`/data/adb/modules/spoof_uname/config.sh`
-- 开机自启功能需要APatch或KernelSU原生模式
+- 开机自启功能需要 APatch 或 KernelSU 原生模式
+
+## 技术原理
+
+SpoofUname 通过 KPM（Kernel Patch Module）利用 KernelPatch 框架的 inline hook 机制，劫持 `uname` 系统调用，在内核态直接替换返回缓冲区中的 release 和 version 字段。控制指令通过复用 `reboot` 系统调用的参数空间进行通信。
 
 ## 感谢
-[KernelPatch](https://github.com/bmax121/KernelPatch/)： 核心功能。
 
-[APatch_kpm](https://github.com/lzghzr/APatch_kpm)：参考部分代码。
+- [KernelPatch](https://github.com/bmax121/KernelPatch/) — 核心框架
+- [APatch_kpm](https://github.com/lzghzr/APatch_kpm) — 参考代码

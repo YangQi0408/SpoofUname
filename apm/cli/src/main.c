@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     char *release = NULL;
     char *version = NULL;
-    char status_buf[256];
+    char status_buf[256] = { 0 };
 
     if (getuid() != 0) {
         fprintf(stderr, "Error: This program must be run as root.\n");
