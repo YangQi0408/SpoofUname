@@ -46,13 +46,16 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ steps.parse_version.outputs.VERSION }}
-          name: SpoofUname v${{ steps.parse_version.outputs.VERSION }}
+          tag: ci-build
+          name: SpoofUname CI Build
           artifacts: |
             build/SpoofUname_APM_*.zip
             build/SpoofUname_KPM_v*.kpm
             build/SpoofUname_KPM_debug_*.kpm
-          generateReleaseNotes: true
+          generateReleaseNotes: false
+          body: |
+            Latest CI build from main branch.
+            Commit: ${{ github.sha }}
           allowUpdates: true
           replacesArtifacts: true
           prerelease: true
