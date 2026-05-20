@@ -2,7 +2,6 @@ VERSION := v0.8.2
 BUILD_DIR := build
 APM_DIR := apm
 KPM_DIR := kpm
-DEBUG ?= 0
 
 ifndef ANDROID_NDK
     $(error ANDROID_NDK is not set)
@@ -11,10 +10,11 @@ endif
 FULL_VER := $(shell git rev-list --count HEAD 2>/dev/null)-$(shell git rev-parse --short HEAD 2>/dev/null)
 APM_ZIP := $(BUILD_DIR)/SpoofUname_APM_$(VERSION)-$(FULL_VER).zip
 KPM_FILE := $(BUILD_DIR)/SpoofUname_KPM_$(VERSION)-$(FULL_VER).kpm
+KPM_DEBUG_FILE := $(BUILD_DIR)/SpoofUname_KPM_debug_$(VERSION)-$(FULL_VER).kpm
 
-.PHONY: all clean apm kpm kpm-build
+.PHONY: all clean apm kpm kpm-release kpm-debug
 
-all: $(APM_ZIP) $(KPM_FILE)
+all: $(APM_ZIP) $(KPM_FILE) $(KPM_DEBUG_FILE)
 
 $(BUILD_DIR):
 	mkdir -p $@
@@ -22,6 +22,10 @@ $(BUILD_DIR):
 apm: $(APM_ZIP)
 
 kpm: $(KPM_FILE)
+
+kpm-release: $(KPM_FILE)
+
+kpm-debug: $(KPM_DEBUG_FILE)
 
 $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli
 	@mkdir -p $(BUILD_DIR)/apm_temp/webroot $(BUILD_DIR)/apm_temp/bin
@@ -33,14 +37,18 @@ $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli
 	@cd $(BUILD_DIR)/apm_temp && zip -r ../SpoofUname_APM_$(VERSION)-$(FULL_VER).zip .
 	@rm -rf $(BUILD_DIR)/apm_temp
 
-$(KPM_FILE): $(BUILD_DIR) | kpm-build
+$(KPM_FILE): $(BUILD_DIR)
+	@$(MAKE) -C $(KPM_DIR) clean
+	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch DEBUG=0
+	@cp $(KPM_DIR)/build/spoofuname_*.kpm $@
+
+$(KPM_DEBUG_FILE): $(BUILD_DIR)
+	@$(MAKE) -C $(KPM_DIR) clean
+	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch DEBUG=1
 	@cp $(KPM_DIR)/build/spoofuname_*.kpm $@
 
 $(APM_DIR)/cli/build/spoof-uname-cli:
 	@$(MAKE) -C $(APM_DIR)/cli
-
-kpm-build:
-	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch DEBUG=$(DEBUG)
 
 clean:
 	@$(MAKE) -C $(APM_DIR)/cli clean

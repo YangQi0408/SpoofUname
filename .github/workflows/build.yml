@@ -9,32 +9,44 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0  # 获取完整历史记录以计算commit数量
-        
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake git zip unzip wget
-        cd ~
-        wget -q https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
-        unzip android-ndk-r27d-linux.zip
-        echo "ANDROID_NDK=$HOME/android-ndk-r27d/" >> $GITHUB_ENV
-        
-    - name: Build project
-      run: |
-        make clean
-        make all
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-artifacts
-        path: |
-          build/*.kpm
-          build/*.zip
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake git zip unzip wget
+          cd ~
+          wget -q https://dl.google.com/android/repository/android-ndk-r27d-linux.zip
+          unzip android-ndk-r27d-linux.zip
+          echo "ANDROID_NDK=$HOME/android-ndk-r27d/" >> $GITHUB_ENV
+
+      - name: Build all
+        run: |
+          make clean
+          make all
+
+      - name: Upload APM
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpoofUname_APM
+          path: build/*.zip
+
+      - name: Upload KPM
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpoofUname_KPM
+          path: build/SpoofUname_KPM_v*.kpm
+          if-no-files-found: error
+
+      - name: Upload KPM (Debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpoofUname_KPM_Debug
+          path: build/SpoofUname_KPM_debug_*.kpm
+          if-no-files-found: error
