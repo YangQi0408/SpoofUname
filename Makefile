@@ -2,6 +2,7 @@ VERSION := v0.8.2
 BUILD_DIR := build
 APM_DIR := apm
 KPM_DIR := kpm
+DEBUG ?= 0
 
 ifndef ANDROID_NDK
     $(error ANDROID_NDK is not set)
@@ -39,7 +40,7 @@ $(APM_DIR)/cli/build/spoof-uname-cli:
 	@$(MAKE) -C $(APM_DIR)/cli
 
 kpm-build:
-	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch
+	@$(MAKE) -C $(KPM_DIR) MYKPM_VERSION=$(VERSION)-$(FULL_VER) KP_DIR=$(CURDIR)/third_party/KernelPatch DEBUG=$(DEBUG)
 
 clean:
 	@$(MAKE) -C $(APM_DIR)/cli clean

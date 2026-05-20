@@ -1,6 +1,7 @@
 MYKPM_VERSION ?= v0.0.0
 BUILD_DIR := build
 KP_DIR ?= ../third_party/KernelPatch
+DEBUG ?= 0
 
 HOST_TAG := $(shell uname | tr A-Z a-z)-$(shell uname -m)
 ifeq ($(HOST_TAG), darwin-arm64)
@@ -16,6 +17,10 @@ CC := $(ANDROID_NDK)/toolchains/llvm/prebuilt/$(HOST_TAG)/bin/aarch64-linux-andr
 INCLUDE_DIRS := . include patch/include linux/include linux/arch/arm64/include linux/tools/arch/arm64/include
 INCLUDE_FLAGS := $(foreach dir,$(INCLUDE_DIRS),-I$(KP_DIR)/kernel/$(dir))
 CFLAGS = -Wall -O2 -fno-PIC -fno-asynchronous-unwind-tables -fno-stack-protector -fno-common -DMYKPM_VERSION=\"$(MYKPM_VERSION)\"
+
+ifeq ($(DEBUG), 1)
+CFLAGS += -DSPOOF_DEBUG
+endif
 
 .PHONY: all clean
 all: $(BUILD_DIR)/spoofuname_$(MYKPM_VERSION).kpm
