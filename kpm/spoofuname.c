@@ -154,11 +154,11 @@ static void after_newuname(hook_fargs1_t *args, void *udata)
     if (ret != 0 || !name) return;
 
     if (custom_release[0] != '\0') {
-        compat_copy_to_user((void __user *)(name + 130), custom_release, strlen(custom_release) + 1);
+        compat_copy_to_user((void __user *)(name + UTS_RELEASE_OFFSET), custom_release, strlen(custom_release) + 1);
     }
 
     if (custom_version[0] != '\0') {
-        compat_copy_to_user((void __user *)(name + 195), custom_version, strlen(custom_version) + 1);
+        compat_copy_to_user((void __user *)(name + UTS_VERSION_OFFSET), custom_version, strlen(custom_version) + 1);
     }
 }
 
@@ -169,9 +169,9 @@ static long inline_hook_demo_init(const char *args, const char *event, void *__u
     hook_err_t err = inline_hook_syscalln(__NR_uname, 1, NULL, after_newuname, NULL);
     spoof_logd("uname hook result: %d\n", err);
 
-    if (err != 0) {
+    if (err != HOOK_NO_ERR) {
         spoof_logd("Failed to hook uname syscall: %d\n", err);
-        if (err == -4092 || err == -4094) {
+        if (err == HOOK_DUPLICATED || err == HOOK_BAD_RELO) {
             spoof_logd("Hook already exists or relocation failed, trying to continue...\n");
             return 0;
         }
@@ -181,12 +181,13 @@ static long inline_hook_demo_init(const char *args, const char *event, void *__u
     err = inline_hook_syscalln(__NR_reboot, 4, before_reboot, NULL, NULL);
     spoof_logd("reboot hook result: %d\n", err);
 
-    if (err != 0) {
+    if (err != HOOK_NO_ERR) {
         spoof_logd("Failed to hook reboot syscall: %d\n", err);
-        if (err == -4092 || err == -4094) {
+        if (err == HOOK_DUPLICATED || err == HOOK_BAD_RELO) {
             spoof_logd("Reboot hook already exists or relocation failed, trying to continue...\n");
             return 0;
         }
+        inline_unhook_syscalln(__NR_uname, NULL, after_newuname);
         return err;
     }
 

@@ -12,4 +12,11 @@
 
 #define SPOOFUNAME_MAX_LENGTH 64
 
+/* struct new_utsname 每个字段为 __NEW_UTS_LEN + 1 = 65 字节。
+ * KernelPatch 未导出该结构体定义，故在此派生偏移量。
+ * 字段顺序: sysname[0], nodename[1], release[2], version[3], machine[4] */
+#define UTS_FIELD_LEN 65
+#define UTS_RELEASE_OFFSET (UTS_FIELD_LEN * 2) /* 130 */
+#define UTS_VERSION_OFFSET (UTS_FIELD_LEN * 3) /* 195 */
+
 #endif
