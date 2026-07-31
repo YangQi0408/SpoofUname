@@ -4,6 +4,7 @@ build/
 
 apm/cli/build/
 apm/webroot/node_modules/
+apm/webroot/dist/
 
 kpm/build/
 
@@ -11,3 +12,5 @@ kpm/build/
 *.d
 *.kpm
 *.zip
+
+compile_commands.json

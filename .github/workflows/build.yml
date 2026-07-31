@@ -27,6 +27,11 @@ jobs:
           echo "VERSION=$FULL_VER" >> $GITHUB_OUTPUT
           echo "Generated Version: $FULL_VER"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Install dependencies
         run: |
           sudo apt-get update

@@ -1,0 +1,367 @@
+/* SpoofUname WebUI 样式
+ * 设计：MD3 分段卡片流，跟随系统深浅色。
+ * 关键：提供完整的 --md-sys-color-* 令牌（light + dark），
+ * 这样 Material Web 组件与自定义元素在两种模式下都能正确取色，
+ * 而非依赖组件自带的 light baseline（那样深色模式会失真）。
+ * 调色板基于主色 #4a5bdb（蓝紫）派生。
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* —— Light 调色板 —— */
+  --md-sys-color-primary: #4a5bdb;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #e1e0ff;
+  --md-sys-color-on-primary-container: #050668;
+
+  --md-sys-color-secondary: #5a5d72;
+  --md-sys-color-secondary-container: #dfe1f9;
+  --md-sys-color-on-secondary-container: #171a2c;
+
+  --md-sys-color-surface: #fbf8ff;
+  --md-sys-color-on-surface: #1b1b21;
+  --md-sys-color-surface-variant: #e3e1ec;
+  --md-sys-color-on-surface-variant: #46464f;
+
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f5f2fb;
+  --md-sys-color-surface-container: #efedf5;
+  --md-sys-color-surface-container-high: #e9e7f0;
+  --md-sys-color-surface-container-highest: #e3e1ea;
+
+  --md-sys-color-outline: #767680;
+  --md-sys-color-outline-variant: #c7c5d0;
+
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  --md-sys-color-inverse-surface: #303036;
+  --md-sys-color-inverse-on-surface: #f3eff9;
+
+  /* 表示"启用"的成功色（MD3 无原生 success，用固定的一对绿色令牌） */
+  --sf-color-success-container: #b8f2c0;
+  --sf-color-on-success-container: #002110;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* —— Dark 调色板：主色提亮到同色相的浅调，符合 MD3 深色规范 —— */
+    --md-sys-color-primary: #bfc2ff;
+    --md-sys-color-on-primary: #17208c;
+    --md-sys-color-primary-container: #313aa3;
+    --md-sys-color-on-primary-container: #e1e0ff;
+
+    --md-sys-color-secondary: #c3c5dd;
+    --md-sys-color-secondary-container: #424659;
+    --md-sys-color-on-secondary-container: #dfe1f9;
+
+    --md-sys-color-surface: #131318;
+    --md-sys-color-on-surface: #e4e1e9;
+    --md-sys-color-surface-variant: #46464f;
+    --md-sys-color-on-surface-variant: #c7c5d0;
+
+    --md-sys-color-surface-container-lowest: #0d0e13;
+    --md-sys-color-surface-container-low: #1b1b21;
+    --md-sys-color-surface-container: #1f1f25;
+    --md-sys-color-surface-container-high: #2a2930;
+    --md-sys-color-surface-container-highest: #34343b;
+
+    --md-sys-color-outline: #90909a;
+    --md-sys-color-outline-variant: #46464f;
+
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error-container: #ffdad6;
+
+    --md-sys-color-inverse-surface: #e4e1e9;
+    --md-sys-color-inverse-on-surface: #303036;
+
+    --sf-color-success-container: #1e4b30;
+    --sf-color-on-success-container: #b8f2c0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  min-height: 100vh;
+  padding: env(safe-area-inset-top, 0) 12px calc(24px + env(safe-area-inset-bottom, 0));
+}
+
+/* SVG 图标定义容器不占位。 */
+.icon-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* —— 顶部标题 —— */
+.app-header {
+  padding: 28px 4px 8px;
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+  letter-spacing: 0.2px;
+}
+
+.app-subtitle {
+  margin: 4px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* —— 卡片 —— */
+.card {
+  background: var(--md-sys-color-surface-container);
+  border-radius: 20px;
+  padding: 18px;
+}
+
+/* 卡片标题行：图标容器 + 标题（+ 右侧 Chip）。 */
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card-head h2 {
+  margin: 0;
+  flex: 1;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* 卡片标题图标：朴素图标，主色填充。 */
+.card-icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  fill: var(--md-sys-color-primary);
+}
+
+/* —— 状态 Chip（MD3 Assist Chip） —— */
+.status-chip {
+  flex: none;
+  --md-assist-chip-leading-icon-size: 18px;
+  --md-assist-chip-container-shape: 999px;
+}
+
+.status-chip[data-state='enabled'] {
+  --md-assist-chip-container-color: var(--sf-color-success-container);
+  --md-assist-chip-outline-color: transparent;
+  --md-assist-chip-outline-width: 0px;
+  --md-assist-chip-label-text-color: var(--sf-color-on-success-container);
+  --md-assist-chip-leading-icon-color: var(--sf-color-on-success-container);
+}
+
+.status-chip[data-state='disabled'] {
+  --md-assist-chip-container-color: var(--md-sys-color-surface-container-highest);
+  --md-assist-chip-outline-color: transparent;
+  --md-assist-chip-outline-width: 0px;
+  --md-assist-chip-label-text-color: var(--md-sys-color-on-surface-variant);
+  --md-assist-chip-leading-icon-color: var(--md-sys-color-on-surface-variant);
+}
+
+.chip-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* —— 设置行（开关行） —— */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.row-switch {
+  justify-content: space-between;
+}
+
+.row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.row-desc {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+md-divider {
+  margin: 10px 0;
+}
+
+/* —— 当前生效的 uname —— */
+.uname-current {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.uname-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.uname-key {
+  flex: none;
+  width: 68px;
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.uname-val {
+  flex: 1;
+  min-width: 0;
+  color: var(--md-sys-color-on-surface);
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  word-break: break-all;
+}
+
+/* —— 输入框 —— */
+md-outlined-text-field {
+  display: block;
+  width: 100%;
+}
+
+.card md-outlined-text-field + md-outlined-text-field {
+  margin-top: 14px;
+}
+
+/* —— 按钮组：两个等宽 outlined 按钮，构成统一的一组 —— */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.button-group md-outlined-button {
+  flex: 1;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* —— 等宽输出区（uname / 日志） —— */
+.output {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 14px;
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.log-display {
+  max-height: 260px;
+  min-height: 44px;
+  overflow-y: auto;
+}
+
+/* —— 日志折叠头 —— */
+.log-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.log-caret {
+  width: 24px;
+  height: 24px;
+  fill: var(--md-sys-color-on-surface-variant);
+  transition: transform 0.2s ease;
+}
+
+.log-toggle[aria-expanded='true'] .log-caret {
+  transform: rotate(180deg);
+}
+
+.icon-btn-glyph {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* —— 全屏进度遮罩 —— */
+.progress-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--md-sys-color-scrim, #000) 40%, transparent);
+  z-index: 100;
+}
+
+/* class 选择器的 display 会盖过 UA 的 [hidden]，需显式隐藏。 */
+.progress-overlay[hidden] {
+  display: none;
+}
+
+/* —— Snackbar —— */
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0));
+  transform: translateX(-50%) translateY(80px);
+  max-width: 92vw;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 200;
+}
+
+.snackbar.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

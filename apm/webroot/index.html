@@ -1,274 +1,153 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>SpoofUname</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-        }
-        .container {
-            max-width: 650px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            padding: 18px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 16px;
-            font-size: 22px;
-            font-weight: 700;
-        }
-        .section {
-            margin-bottom: 14px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-        .section h3 {
-            color: #495057;
-            margin-bottom: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .section h3::before {
-            content: '';
-            width: 3px;
-            height: 13px;
-            background: #667eea;
-            border-radius: 2px;
-        }
-        .input-group {
-            margin-bottom: 8px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 4px;
-            color: #495057;
-            font-weight: 500;
-            font-size: 12px;
-        }
-        .input-group input[type="text"] {
-            width: 100%;
-            padding: 6px 10px;
-            border: 2px solid #e9ecef;
-            border-radius: 5px;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-        .input-group input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-        .switch-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .switch-group label {
-            color: #495057;
-            font-weight: 500;
-            font-size: 12px;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 22px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #dee2e6;
-            transition: .3s;
-            border-radius: 22px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        input:checked + .slider {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        input:checked + .slider:before {
-            transform: translateX(18px);
-        }
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .button-group.secondary {
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-        }
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(102, 126, 234, 0.3);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button.secondary {
-            background: #6c757d;
-            box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
-        }
-        button.secondary:hover {
-            background: #5a6268;
-            box-shadow: 0 3px 6px rgba(108, 117, 125, 0.3);
-        }
-        #kpmStatus {
-            background: #e7f3ff;
-            border: 1px solid #b8daff;
-            border-radius: 5px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-        #kpmStatus h4 {
-            color: #004085;
-            margin-bottom: 6px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        #kpmStatusContent {
-            color: #0056b3;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        #output {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            margin-top: 10px;
-            min-height: 40px;
-            font-size: 12px;
-            color: #495057;
-            line-height: 1.4;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 500;
-        }
-        .status-badge.enabled {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status-badge.disabled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>SpoofUname</h1>
-        
-        <div class="section">
-            <h3>配置信息</h3>
-            <div class="input-group">
-                <label for="release">Release</label>
-                <input type="text" id="release" placeholder="请输入 Release">
+    <!-- 内联 SVG 图标定义（sprite）。path 取自 Material Symbols Outlined（weight 400，
+         viewBox 0 -960 960 960，fill 型字形），只内嵌用到的图标，零字体、零网络依赖。 -->
+    <svg class="icon-defs" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-shield" viewBox="0 -960 960 960">
+                <path d="M480-81q-140-35-230-162.5T160-523v-238l320-120 320 120v238q0 152-90 279.5T480-81Zm0-62q115-38 187.5-143.5T740-523v-196l-260-98-260 98v196q0 131 72.5 236.5T480-143Zm0-337Z" />
+            </symbol>
+            <symbol id="i-edit" viewBox="0 -960 960 960">
+                <path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z" />
+            </symbol>
+            <symbol id="i-settings" viewBox="0 -960 960 960">
+                <path d="m388-80-20-126q-19-7-40-19t-37-25l-118 54-93-164 108-79q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521L80-600l93-164 118 54q16-13 37-25t40-18l20-127h184l20 126q19 7 40.5 18.5T669-710l118-54 93 164-108 77q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l108 78-93 164-118-54q-16 13-36.5 25.5T592-206L572-80H388Zm48-60h88l14-112q33-8 62.5-25t53.5-41l106 46 40-72-94-69q4-17 6.5-33.5T715-480q0-17-2-33.5t-7-33.5l94-69-40-72-106 46q-23-26-52-43.5T538-708l-14-112h-88l-14 112q-34 7-63.5 24T306-642l-106-46-40 72 94 69q-4 17-6.5 33.5T245-480q0 17 2.5 33.5T254-413l-94 69 40 72 106-46q24 24 53.5 41t62.5 25l14 112Zm44-210q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Zm0-130Z" />
+            </symbol>
+            <symbol id="i-log" viewBox="0 -960 960 960">
+                <path d="M222-80q-43.75 0-74.37-30.63Q117-141.25 117-185v-125h127v-570l59.8 60 59.8-60 59.8 60 59.8-60 59.8 60 60-60 60 60 60-60 60 60 60-60v695q0 43.75-30.62 74.37Q781.75-80 738-80H222Zm516-60q20 0 32.5-12.5T783-185v-595H304v470h389v125q0 20 12.5 32.5T738-140ZM357-622v-60h240v60H357Zm0 134v-60h240v60H357Zm333-134q-12 0-21-9t-9-21q0-12 9-21t21-9q12 0 21 9t9 21q0 12-9 21t-21 9Zm0 129q-12 0-21-9t-9-21q0-12 9-21t21-9q12 0 21 9t9 21q0 12-9 21t-21 9ZM221-140h412v-110H177v65q0 20 12.65 32.5T221-140Zm-44 0v-110 110Z" />
+            </symbol>
+            <symbol id="i-chevron" viewBox="0 -960 960 960">
+                <path d="M480-344 240-584l43-43 197 197 197-197 43 43-240 240Z" />
+            </symbol>
+            <symbol id="i-trash" viewBox="0 -960 960 960">
+                <path d="M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z" />
+            </symbol>
+            <symbol id="i-terminal" viewBox="0 -960 960 960">
+                <path d="M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm0-60h680v-436H140v436Zm160-72-42-42 103-104-104-104 43-42 146 146-146 146Zm190 4v-60h220v60H490Z" />
+            </symbol>
+            <symbol id="i-refresh" viewBox="0 -960 960 960">
+                <path d="M480-160q-133 0-226.5-93.5T160-480q0-133 93.5-226.5T480-800q85 0 149 34.5T740-671v-129h60v254H546v-60h168q-38-60-97-97t-137-37q-109 0-184.5 75.5T220-480q0 109 75.5 184.5T480-220q83 0 152-47.5T728-393h62q-29 105-115 169t-195 64Z" />
+            </symbol>
+            <symbol id="i-check" viewBox="0 -960 960 960">
+                <path d="m421-298 283-283-46-45-237 237-120-120-45 45 165 166Zm59 218q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />
+            </symbol>
+            <symbol id="i-block" viewBox="0 -960 960 960">
+                <path d="M324-111.5Q251-143 197-197t-85.5-127Q80-397 80-480t31.5-156Q143-709 197-763t127-85.5Q397-880 480-880t156 31.5Q709-817 763-763t85.5 127Q880-563 880-480t-31.5 156Q817-251 763-197t-127 85.5Q563-80 480-80t-156-31.5ZM480-140q61.01 0 117.51-20.5Q654-181 699-220L220-699q-38 46-59 102.17T140-480q0 142.37 98.81 241.19Q337.63-140 480-140Zm259-121q37-45 59-101.49 22-56.5 22-117.51 0-142.38-98.81-241.19T480-820q-60.66 0-116.83 21T261-739l478 478ZM480-480Z" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <main class="app">
+        <header class="app-header">
+            <h1 class="md-typescale-headline-medium">SpoofUname</h1>
+            <p class="md-typescale-body-medium app-subtitle">内核 Uname 信息伪装控制面板</p>
+        </header>
+
+        <!-- 状态卡：模块总开关 + 当前生效的 uname -->
+        <section class="card" aria-labelledby="status-title">
+            <div class="card-head">
+                <svg class="card-icon" aria-hidden="true"><use href="#i-shield" /></svg>
+                <h2 id="status-title" class="md-typescale-title-medium">模块状态</h2>
+                <md-assist-chip id="statusChip" class="status-chip" label="加载中…">
+                    <svg slot="icon" class="chip-icon" aria-hidden="true"><use id="statusChipIcon" href="#i-check" /></svg>
+                </md-assist-chip>
             </div>
-            <div class="input-group">
-                <label for="version">Version</label>
-                <input type="text" id="version" placeholder="请输入 Version">
+
+            <div class="row row-switch">
+                <div class="row-text">
+                    <span class="md-typescale-body-large">启用 Uname 伪装</span>
+                    <span class="md-typescale-body-small row-desc">关闭后立即恢复真实信息</span>
+                </div>
+                <md-switch id="moduleSwitch" aria-label="模块开关"></md-switch>
             </div>
-            <div class="switch-group">
-                <label for="moduleSwitch">模块开关</label>
-                <label class="switch">
-                    <input type="checkbox" id="moduleSwitch" checked>
-                    <span class="slider"></span>
-                </label>
+
+            <md-divider></md-divider>
+
+            <div class="uname-current">
+                <div class="uname-line">
+                    <span class="uname-key md-typescale-label-medium">RELEASE</span>
+                    <span class="uname-val md-typescale-body-medium" id="curRelease">—</span>
+                </div>
+                <div class="uname-line">
+                    <span class="uname-key md-typescale-label-medium">VERSION</span>
+                    <span class="uname-val md-typescale-body-medium" id="curVersion">—</span>
+                </div>
             </div>
-            <div class="switch-group">
-                <label for="autoStartSwitch">开机自启</label>
-                <label class="switch">
-                    <input type="checkbox" id="autoStartSwitch" checked>
-                    <span class="slider"></span>
-                </label>
+        </section>
+
+        <!-- 配置卡：输入要伪装的 release / version -->
+        <section class="card" aria-labelledby="config-title">
+            <div class="card-head">
+                <svg class="card-icon" aria-hidden="true"><use href="#i-edit" /></svg>
+                <h2 id="config-title" class="md-typescale-title-medium">伪装配置</h2>
             </div>
-        </div>
-        
-        <div class="section">
-            <h3>操作</h3>
+
+            <md-outlined-text-field id="release" label="Release (uname -r)" type="text"
+                placeholder="例如: 6.1.114514" supporting-text="失焦后自动应用并保存"></md-outlined-text-field>
+            <md-outlined-text-field id="version" label="Version (uname -v)" type="text"
+                placeholder="例如: #1 SMP PREEMPT ..." supporting-text="失焦后自动应用并保存"></md-outlined-text-field>
+
             <div class="button-group">
-                <button onclick="getUname()">获取 Uname</button>
-                <button onclick="setRelease()">设置 RELEASE</button>
-                <button onclick="setVersion()">设置 VERSION</button>
-                <button onclick="getKpmStatus()">获取 KPM 状态</button>
+                <md-outlined-button id="getUnameBtn">
+                    <svg class="btn-icon" slot="icon" aria-hidden="true"><use href="#i-terminal" /></svg>
+                    获取 Uname
+                </md-outlined-button>
+                <md-outlined-button id="refreshStatusBtn">
+                    <svg class="btn-icon" slot="icon" aria-hidden="true"><use href="#i-refresh" /></svg>
+                    刷新状态
+                </md-outlined-button>
             </div>
-            <div class="button-group secondary">
-                <button onclick="clearLogs()" class="secondary">清除日志</button>
-                <button onclick="saveConfigFile()" class="secondary">保存配置</button>
+
+            <pre class="output" id="unameOutput" hidden></pre>
+        </section>
+
+        <!-- 选项卡：开机自启 -->
+        <section class="card" aria-labelledby="options-title">
+            <div class="card-head">
+                <svg class="card-icon" aria-hidden="true"><use href="#i-settings" /></svg>
+                <h2 id="options-title" class="md-typescale-title-medium">选项</h2>
             </div>
-        </div>
-        
-        <div class="section">
-            <h3>KPM 状态</h3>
-            <div id="kpmStatus" style="display: none;">
-                <h4>SpoofUname 状态</h4>
-                <div id="kpmStatusContent"></div>
+
+            <div class="row row-switch">
+                <div class="row-text">
+                    <span class="md-typescale-body-large">开机自启</span>
+                    <span class="md-typescale-body-small row-desc">重启后自动重放配置（需嵌入 KPM）</span>
+                </div>
+                <md-switch id="autoStartSwitch" selected aria-label="开机自启"></md-switch>
             </div>
-        </div>
-        
-        <div class="section">
-            <h3>输出</h3>
-            <div id="output"></div>
-        </div>
+        </section>
+
+        <!-- 日志卡：默认折叠 -->
+        <section class="card" aria-labelledby="log-title">
+            <div class="card-head">
+                <button class="log-toggle" id="logToggle" aria-expanded="false" aria-controls="logDisplay">
+                    <svg class="card-icon" aria-hidden="true"><use href="#i-log" /></svg>
+                    <h2 id="log-title" class="md-typescale-title-medium">操作日志</h2>
+                    <svg class="log-caret" aria-hidden="true"><use href="#i-chevron" /></svg>
+                </button>
+                <md-icon-button id="clearLogBtn" aria-label="清除日志" title="清除日志">
+                    <svg class="icon-btn-glyph" aria-hidden="true"><use href="#i-trash" /></svg>
+                </md-icon-button>
+            </div>
+            <pre class="output log-display" id="logDisplay" hidden></pre>
+        </section>
+    </main>
+
+    <div class="progress-overlay" id="progressOverlay" hidden>
+        <md-circular-progress indeterminate></md-circular-progress>
     </div>
 
-    <script src="config.js"></script>
-    <script type="module" src="index.js"></script>
+    <div class="snackbar md-typescale-body-medium" id="snackbar" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>
