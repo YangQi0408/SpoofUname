@@ -92,6 +92,10 @@ export function readConfigRaw() {
   return exec(`cat ${PATHS.CONFIG} 2>/dev/null || echo ''`);
 }
 
+// config.sh 中 boot_stage 合法值；缺失或非法时回退到默认（service）。
+export const BOOT_STAGES = ['service', 'post-fs-data'];
+export const DEFAULT_BOOT_STAGE = 'service';
+
 // 解析 config.sh 的 KEY="VALUE" 行。
 export function parseConfig(text) {
   const unquote = (v) => {
@@ -102,7 +106,13 @@ export function parseConfig(text) {
     }
     return t;
   };
-  const config = { release: '', version: '', enabled: false, autostart: true };
+  const config = {
+    release: '',
+    version: '',
+    enabled: false,
+    autostart: true,
+    bootStage: DEFAULT_BOOT_STAGE,
+  };
   (text || '').trim().split('\n').forEach((line) => {
     const idx = line.indexOf('=');
     if (idx <= 0) return;
@@ -112,16 +122,22 @@ export function parseConfig(text) {
     else if (key === 'version') config.version = unquote(val);
     else if (key === 'enabled') config.enabled = val.trim() === 'true';
     else if (key === 'autostart') config.autostart = val.trim() === 'true';
+    else if (key === 'boot_stage') {
+      const stage = unquote(val);
+      // 只接受已知阶段，否则用默认值兜底（兼容旧配置 / 手改错值）。
+      config.bootStage = BOOT_STAGES.includes(stage) ? stage : DEFAULT_BOOT_STAGE;
+    }
   });
   return config;
 }
 
 // 写入配置文件。用 printf 保证以 # 开头的 version 也能保留引号。
-export function saveConfig({ release, version, enabled, autostart }) {
+export function saveConfig({ release, version, enabled, autostart, bootStage }) {
+  const stage = BOOT_STAGES.includes(bootStage) ? bootStage : DEFAULT_BOOT_STAGE;
   const cmd =
-    `printf 'release=%s\\nversion=%s\\nenabled=%s\\nautostart=%s\\n' ` +
+    `printf 'release=%s\\nversion=%s\\nenabled=%s\\nautostart=%s\\nboot_stage=%s\\n' ` +
     `${shellQuote(`"${release || ''}"`)} ${shellQuote(`"${version || ''}"`)} ` +
-    `${enabled ? 'true' : 'false'} ${autostart ? 'true' : 'false'} > ${PATHS.CONFIG}`;
+    `${enabled ? 'true' : 'false'} ${autostart ? 'true' : 'false'} ${stage} > ${PATHS.CONFIG}`;
   return exec(cmd);
 }
 

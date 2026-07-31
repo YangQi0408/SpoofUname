@@ -32,7 +32,7 @@ $(APM_DIR)/webroot/dist/index.html: $(APM_DIR)/webroot/index.html $(APM_DIR)/web
 
 $(APM_ZIP): $(BUILD_DIR) $(APM_DIR)/cli/build/spoof-uname-cli $(APM_DIR)/webroot/dist/index.html
 	@mkdir -p $(BUILD_DIR)/apm_temp/webroot $(BUILD_DIR)/apm_temp/bin
-	@cp $(APM_DIR)/module.prop $(APM_DIR)/customize.sh $(APM_DIR)/post-fs-data.sh $(BUILD_DIR)/apm_temp/
+	@cp $(APM_DIR)/module.prop $(APM_DIR)/customize.sh $(APM_DIR)/post-fs-data.sh $(APM_DIR)/service.sh $(APM_DIR)/spoof-common.sh $(BUILD_DIR)/apm_temp/
 	@sed -i 's/^version=.*/version=$(VERSION)-$(FULL_VER)/' $(BUILD_DIR)/apm_temp/module.prop
 	@sed -i 's/^versionCode=.*/versionCode=$(shell echo $(FULL_VER) | cut -d- -f1)/' $(BUILD_DIR)/apm_temp/module.prop
 	@cp -r $(APM_DIR)/webroot/dist/. $(BUILD_DIR)/apm_temp/webroot/

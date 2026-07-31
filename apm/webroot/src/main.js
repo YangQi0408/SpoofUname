@@ -7,6 +7,7 @@
 import '@material/web/divider/divider.js';
 import '@material/web/textfield/outlined-text-field.js';
 import '@material/web/switch/switch.js';
+import '@material/web/radio/radio.js';
 import '@material/web/button/text-button.js';
 import '@material/web/button/outlined-button.js';
 import '@material/web/chips/assist-chip.js';
@@ -36,6 +37,8 @@ const els = {
   version: $('version'),
   moduleSwitch: $('moduleSwitch'),
   autoStartSwitch: $('autoStartSwitch'),
+  stageService: $('stageService'),
+  stagePostFsData: $('stagePostFsData'),
   logToggle: $('logToggle'),
   clearLogBtn: $('clearLogBtn'),
   logDisplay: $('logDisplay'),
@@ -124,6 +127,20 @@ async function getUname() {
 
 // —— 持久化 ——
 
+// 读取当前选中的启动阶段（两个 radio 二选一）。
+function currentBootStage() {
+  return els.stagePostFsData.checked ? 'post-fs-data' : 'service';
+}
+
+// 手动设置选中的启动阶段，保证两个 radio 互斥（不依赖组件内部分组）。
+function setBootStage(stage) {
+  const post = stage === 'post-fs-data';
+  els.stagePostFsData.checked = post;
+  els.stageService.checked = !post;
+  els.stagePostFsData.closest('.stage-option').setAttribute('aria-checked', String(post));
+  els.stageService.closest('.stage-option').setAttribute('aria-checked', String(!post));
+}
+
 // 把当前各控件的值统一写入 config.sh。
 function persist() {
   return ksu.saveConfig({
@@ -131,6 +148,37 @@ function persist() {
     version: els.version.value.trim(),
     enabled: els.moduleSwitch.selected,
     autostart: els.autoStartSwitch.selected,
+    bootStage: currentBootStage(),
+  });
+}
+
+// 启动阶段选择仅在开机自启开启时可用（否则阶段无意义）。
+function syncStageEnabled() {
+  const on = els.autoStartSwitch.selected;
+  els.stageService.disabled = !on;
+  els.stagePostFsData.disabled = !on;
+  const group = els.stageService.closest('.stage-group');
+  group.dataset.disabled = on ? 'false' : 'true';
+  // 禁用时移除行的可聚焦/可点击语义。
+  group.querySelectorAll('.stage-option').forEach((opt) => {
+    opt.setAttribute('tabindex', on ? '0' : '-1');
+    opt.setAttribute('aria-disabled', on ? 'false' : 'true');
+  });
+}
+
+// 用户切换启动阶段：设置选中态并持久化。
+async function onStageSelect(stage) {
+  if (!els.autoStartSwitch.selected) return; // 禁用时不响应
+  if (currentBootStage() === stage) return; // 未变化
+  setBootStage(stage);
+  await withBusy(async () => {
+    try {
+      await persist();
+      await ksu.appendLog(`启动阶段设为: ${stage}`);
+      toast(`启动阶段已设为 ${stage}`);
+    } catch (e) {
+      toast('保存启动阶段失败: ' + e.message);
+    }
   });
 }
 
@@ -201,6 +249,7 @@ async function onModuleToggle() {
 }
 
 async function onAutoStartToggle() {
+  syncStageEnabled(); // 同步启动阶段可用状态
   await withBusy(async () => {
     try {
       await persist();
@@ -208,6 +257,7 @@ async function onAutoStartToggle() {
     } catch (e) {
       toast('保存开机自启失败: ' + e.message);
       els.autoStartSwitch.selected = !els.autoStartSwitch.selected;
+      syncStageEnabled(); // 回滚后重新同步
     }
   });
 }
@@ -250,6 +300,9 @@ async function loadConfig() {
     appliedRelease = config.release;
     appliedVersion = config.version;
     els.autoStartSwitch.selected = config.autostart;
+    // 启动阶段：默认 service，config 里是 post-fs-data 则选中对应项。
+    setBootStage(config.bootStage === 'post-fs-data' ? 'post-fs-data' : 'service');
+    syncStageEnabled(); // 同步启动阶段可用状态
   } catch {
     // 配置缺失时保持默认值。
   }
@@ -299,6 +352,18 @@ els.release.addEventListener('change', onReleaseChange);
 els.version.addEventListener('change', onVersionChange);
 els.moduleSwitch.addEventListener('change', onModuleToggle);
 els.autoStartSwitch.addEventListener('change', onAutoStartToggle);
+// 启动阶段：整行可点击（含文字），并支持键盘 Enter/Space。
+// 不依赖 md-radio 内部分组，由 onStageSelect 手动管理互斥，避免 label 转发问题。
+document.querySelectorAll('.stage-option').forEach((opt) => {
+  const stage = opt.dataset.stage;
+  opt.addEventListener('click', () => onStageSelect(stage));
+  opt.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onStageSelect(stage);
+    }
+  });
+});
 
 // —— 初始化 ——
 

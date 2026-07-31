@@ -12,6 +12,8 @@ mkdir -p "$MODPATH/log"
 touch "$MODPATH/log/log.txt"
 
 set_perm "$MODPATH/post-fs-data.sh" 0 0 0755
+set_perm "$MODPATH/service.sh" 0 0 0755
+set_perm "$MODPATH/spoof-common.sh" 0 0 0755
 set_perm "$MODPATH/bin/spoof-uname-cli" 0 0 0755
 set_perm "$NEW_CONFIG" 0 0 0644
 

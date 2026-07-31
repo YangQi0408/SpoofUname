@@ -123,6 +123,28 @@
                 </div>
                 <md-switch id="autoStartSwitch" selected aria-label="开机自启"></md-switch>
             </div>
+
+            <md-divider></md-divider>
+
+            <div class="stage-group" id="stageGroup" role="radiogroup" aria-labelledby="stage-label">
+                <div class="row-text stage-head">
+                    <span id="stage-label" class="md-typescale-body-large">启动阶段</span>
+                </div>
+                <div class="stage-option" data-stage="service" role="radio" tabindex="0">
+                    <md-radio id="stageService" name="bootStage" value="service" aria-label="service 阶段"></md-radio>
+                    <span class="stage-text">
+                        <span class="md-typescale-body-large">service</span>
+                        <span class="md-typescale-body-small row-desc">兼容性好</span>
+                    </span>
+                </div>
+                <div class="stage-option" data-stage="post-fs-data" role="radio" tabindex="0">
+                    <md-radio id="stagePostFsData" name="bootStage" value="post-fs-data" aria-label="post-fs-data 阶段"></md-radio>
+                    <span class="stage-text">
+                        <span class="md-typescale-body-large">post-fs-data</span>
+                        <span class="md-typescale-body-small row-desc">隐藏性好，但个别设备可能无法开机</span>
+                    </span>
+                </div>
+            </div>
         </section>
 
         <!-- 日志卡：默认折叠 -->

@@ -209,6 +209,58 @@ body {
   min-width: 0;
 }
 
+/* —— 启动阶段选择 —— */
+.stage-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stage-head {
+  padding: 4px 0 6px;
+}
+
+/* 整行可点击：radio + 文字。选中项加 tonal 底强调。 */
+.stage-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage-option:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.stage-option[aria-checked='true'] {
+  background: var(--md-sys-color-primary-container);
+}
+
+.stage-option[aria-checked='true'] .stage-text > span:first-child {
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.stage-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* 整组禁用（开机自启关闭时）：灰化并屏蔽点击。 */
+.stage-group[data-disabled='true'] {
+  opacity: 0.5;
+}
+
+.stage-group[data-disabled='true'] .stage-option {
+  cursor: default;
+  pointer-events: none;
+}
+
 .row-desc {
   color: var(--md-sys-color-on-surface-variant);
 }
