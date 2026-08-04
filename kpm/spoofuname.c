@@ -78,6 +78,15 @@ int control(const char *args, char *out_msg, int outlen)
         modify_enabled = 0;
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "disabled");
         spoof_logd("disabled\n");
+    } else if (!strcmp(args, "CR")) {
+        /* 清除 release：置空后 uname 钩子不再覆盖该字段，恢复设备原值。 */
+        custom_release[0] = '\0';
+        reply_len = snprintf(reply_msg, sizeof(reply_msg), "release cleared");
+        spoof_logd("release cleared\n");
+    } else if (!strcmp(args, "CV")) {
+        custom_version[0] = '\0';
+        reply_len = snprintf(reply_msg, sizeof(reply_msg), "version cleared");
+        spoof_logd("version cleared\n");
     } else {
         reply_len = snprintf(reply_msg, sizeof(reply_msg), "Unknown command");
     }
@@ -136,6 +145,17 @@ static void before_reboot(hook_fargs4_t *args, void *udata)
             modify_enabled = 1;
             spoof_logd("version set to: %s via reboot hook\n", custom_version);
         }
+        break;
+
+    case SPOOFUNAME_CMD_CLEAR_RELEASE:
+        /* 置空 release：uname 钩子对空字段不再覆盖，即恢复设备原值。 */
+        custom_release[0] = '\0';
+        spoof_logd("release cleared via reboot hook\n");
+        break;
+
+    case SPOOFUNAME_CMD_CLEAR_VERSION:
+        custom_version[0] = '\0';
+        spoof_logd("version cleared via reboot hook\n");
         break;
 
     default:

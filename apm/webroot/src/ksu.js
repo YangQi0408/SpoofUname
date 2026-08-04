@@ -87,6 +87,15 @@ export function disable() {
   return cli('--disable');
 }
 
+// 清除单个字段的伪装：内核置空后 uname 钩子不再覆盖，恢复设备原值。
+export function clearRelease() {
+  return cli('--clear-release');
+}
+
+export function clearVersion() {
+  return cli('--clear-version');
+}
+
 // 读取配置文件，缺失时返回空串。
 export function readConfigRaw() {
   return exec(`cat ${PATHS.CONFIG} 2>/dev/null || echo ''`);

@@ -35,6 +35,8 @@ const els = {
   curVersion: $('curVersion'),
   release: $('release'),
   version: $('version'),
+  restoreReleaseBtn: $('restoreReleaseBtn'),
+  restoreVersionBtn: $('restoreVersionBtn'),
   moduleSwitch: $('moduleSwitch'),
   autoStartSwitch: $('autoStartSwitch'),
   stageService: $('stageService'),
@@ -229,6 +231,41 @@ async function onVersionChange() {
   });
 }
 
+// —— 还原单个字段为设备原值 ——
+
+// 清除内核里对应字段的伪装值：输入框清空、下发 clear、持久化、刷新。
+async function onRestoreRelease() {
+  await withBusy(async () => {
+    try {
+      await ksu.clearRelease();
+      els.release.value = '';
+      appliedRelease = '';
+      await persist();
+      await ksu.appendLog('还原 Release 为设备原值');
+      toast('Release 已还原为设备原值');
+      await refreshStatus();
+    } catch (e) {
+      toast('还原 Release 失败: ' + e.message);
+    }
+  });
+}
+
+async function onRestoreVersion() {
+  await withBusy(async () => {
+    try {
+      await ksu.clearVersion();
+      els.version.value = '';
+      appliedVersion = '';
+      await persist();
+      await ksu.appendLog('还原 Version 为设备原值');
+      toast('Version 已还原为设备原值');
+      await refreshStatus();
+    } catch (e) {
+      toast('还原 Version 失败: ' + e.message);
+    }
+  });
+}
+
 // —— 开关即时应用 ——
 
 async function onModuleToggle() {
@@ -350,6 +387,15 @@ els.logToggle.addEventListener('click', toggleLog);
 els.clearLogBtn.addEventListener('click', clearLog);
 els.release.addEventListener('change', onReleaseChange);
 els.version.addEventListener('change', onVersionChange);
+// 还原按钮在输入框 trailing-icon 内，阻止冒泡避免触发输入框聚焦/其它处理。
+els.restoreReleaseBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  onRestoreRelease();
+});
+els.restoreVersionBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  onRestoreVersion();
+});
 els.moduleSwitch.addEventListener('change', onModuleToggle);
 els.autoStartSwitch.addEventListener('change', onAutoStartToggle);
 // 启动阶段：整行可点击（含文字），并支持键盘 Enter/Space。

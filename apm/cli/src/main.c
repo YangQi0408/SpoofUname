@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
 
     static struct option long_opts[] = { { "set-release", required_argument, 0, 'r' },
                                          { "set-version", required_argument, 0, 'v' },
+                                         { "clear-release", no_argument, 0, 'R' },
+                                         { "clear-version", no_argument, 0, 'V' },
                                          { "disable", no_argument, 0, 'd' },
                                          { "enable", no_argument, 0, 'e' },
                                          { "status", no_argument, 0, 's' },
@@ -61,6 +63,28 @@ int main(int argc, char *argv[])
             }
             version = optarg;
             set_flag = true;
+            break;
+
+        case 'R':
+            if (set_flag || action_flag) {
+                fprintf(stderr, "Error: Cannot mix --clear-release with other options.\n");
+                return 1;
+            }
+            action_flag = true;
+            control(SPOOFUNAME_CMD_CLEAR_RELEASE, NULL);
+            printf("release=cleared\n");
+            return 0;
+            break;
+
+        case 'V':
+            if (set_flag || action_flag) {
+                fprintf(stderr, "Error: Cannot mix --clear-version with other options.\n");
+                return 1;
+            }
+            action_flag = true;
+            control(SPOOFUNAME_CMD_CLEAR_VERSION, NULL);
+            printf("version=cleared\n");
+            return 0;
             break;
 
         case 'd':
@@ -97,14 +121,14 @@ int main(int argc, char *argv[])
             break;
 
         default:
-            fprintf(stderr, "Usage: %s (-d | -e | -s | --set-release VER | --set-version VER)\n", argv[0]);
+            fprintf(stderr, "Usage: %s (-d | -e | -s | --set-release VER | --set-version VER | --clear-release | --clear-version)\n", argv[0]);
             return 1;
         }
     }
 
     if (!action_flag && !set_flag) {
         fprintf(stderr, "Error: Must specify an option.\n");
-        fprintf(stderr, "Usage: %s (-d | -e | -s | --set-release VER | --set-version VER)\n", argv[0]);
+        fprintf(stderr, "Usage: %s (-d | -e | -s | --set-release VER | --set-version VER | --clear-release | --clear-version)\n", argv[0]);
         return 1;
     }
 
