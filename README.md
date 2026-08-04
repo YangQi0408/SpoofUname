@@ -22,38 +22,43 @@
 
 ### WebUI 功能
 
-APM 提供了一个 Web 界面，方便用户进行模块控制：
+APM 提供了一个 WebUI 界面，方便用户进行模块控制：
 
 **主要功能：**
-- **获取 Uname** — 显示当前系统信息
-- **设置 RELEASE** — 修改内核 release 信息
-- **设置 VERSION** — 修改内核 version 信息
-- **获取 KPM 状态** — 查看模块当前状态和配置
-- **模块开关** — 启用/禁用模块功能
-- **清除日志** — 清理操作日志文件
-- **保存配置** — 保存当前配置到文件
+
+- **模块开关** — 启用/禁用 Uname 伪装，即时生效
+- **设置 RELEASE / VERSION** — 修改内核 release / version 信息
+- **还原为设备原值** — 单独清除某个字段的伪装，恢复该字段的设备原始值（另一字段不受影响）
+- **获取 Uname** — 显示当前系统信息（`uname -a`）
+- **实时状态** — 顶部展示模块启用状态与当前生效的 release / version
+- **开机自启** — 重启后自动重放配置（需嵌入 KPM）
+- **启动阶段** — 选择开机注入在 `service`（默认，兼容性好）或 `post-fs-data` 阶段执行
+- **操作日志** — 查看 / 清除操作日志
 
 **使用步骤：**
-1. 在 Release/Version 字段输入要伪装的信息
-2. 使用相应按钮执行操作
-3. KPM 状态区域会实时显示模块状态
-4. 操作结果显示在下方的输出区域
+
+1. 在 Release / Version 字段输入要伪装的信息，失焦后自动应用并保存
+2. 点击字段旁的还原按钮可将该字段恢复为设备原值
+3. 顶部状态区实时显示模块状态与当前生效值
 
 **日志管理：**
+
 - 日志文件位置：`/data/adb/modules/spoof_uname/log/log.txt`
 - 所有操作都会记录在日志中，便于调试和问题排查
-- 可通过"清除日志"按钮清理日志文件
+- 可通过日志卡片的清除按钮清理日志文件
 
 ### 手动控制 KPM
 
 在管理器的 KPM 页面，点击"参数"并输入命令：
 
-| 命令 | 说明 |
-|------|------|
-| `SR <Release>` | 修改 Release，如 `SR 6.1.114514` |
+| 命令           | 说明                                                                             |
+| -------------- | -------------------------------------------------------------------------------- |
+| `SR <Release>` | 修改 Release，如 `SR 6.1.114514`                                                 |
 | `SV <Version>` | 修改 Version，如 `SV #1 SMP PREEMPT Wed Aug 20 07:17:20 UTC 2025 aarch64 Toybox` |
-| `EN` | 启用模块 |
-| `DIS` | 关闭模块 |
+| `CR`           | 清除 Release 伪装，恢复设备原值                                                  |
+| `CV`           | 清除 Version 伪装，恢复设备原值                                                  |
+| `EN`           | 启用模块                                                                         |
+| `DIS`          | 关闭模块                                                                         |
 
 ## 项目结构
 
@@ -65,14 +70,17 @@ SpoofUname/
 ├── apm/                       # Android Patch Module
 │   ├── module.prop            # 模块属性文件
 │   ├── customize.sh           # 安装脚本
-│   ├── post-fs-data.sh        # 开机自启脚本
+│   ├── spoof-common.sh        # 开机注入共享逻辑
+│   ├── post-fs-data.sh        # post-fs-data 阶段入口
+│   ├── service.sh             # service 阶段入口（默认）
 │   ├── cli/                   # 命令行工具
 │   │   ├── src/main.c
 │   │   └── Makefile
-│   └── webroot/               # WebUI 界面
+│   └── webroot/               # WebUI 界面（Vite + Material Web）
 │       ├── index.html
-│       ├── index.js
-│       └── config.js
+│       ├── vite.config.js
+│       ├── package.json
+│       └── src/               # main.js / ksu.js / style.css
 ├── common.h                   # KPM 和 APM 共享的头文件
 ├── kpm/                       # Kernel Patch Module
 │   ├── spoofuname.c           # KPM 核心源码
@@ -85,12 +93,14 @@ SpoofUname/
 ```
 
 > `third_party/KernelPatch` 为 git 子模块，克隆后需执行 `git submodule update --init --recursive`。
+> WebUI 为 Vite 项目，构建 APM 时会自动执行 `npm ci && npm run build`（需 Node/npm）。
 
 ## 构建说明
 
 ### 环境要求
 
 - **Android NDK**（用于编译 ARM64 架构）
+- **Node.js / npm**（用于构建 WebUI）
 - Git
 - Make
 
@@ -119,11 +129,11 @@ make clean
 
 ### 输出文件
 
-| 文件 | 说明 |
-|------|------|
-| `build/SpoofUname_APM_*.zip` | APM 模块包（CLI + WebUI + 启动脚本） |
-| `build/SpoofUname_KPM_*.kpm` | KPM 内核模块（无日志，适合日常使用） |
-| `build/SpoofUname_KPM_debug_*.kpm` | KPM 内核模块（带日志，用于调试） |
+| 文件                               | 说明                                 |
+| ---------------------------------- | ------------------------------------ |
+| `build/SpoofUname_APM_*.zip`       | APM 模块包（CLI + WebUI + 启动脚本） |
+| `build/SpoofUname_KPM_*.kpm`       | KPM 内核模块（无日志，适合日常使用） |
+| `build/SpoofUname_KPM_debug_*.kpm` | KPM 内核模块（带日志，用于调试）     |
 
 > DEBUG 版本会输出内核日志到 `dmesg`，便于开发调试。**请勿在正式环境中使用 DEBUG 版本**，大量日志可能导致 `logd` 内存持续增长。
 
@@ -136,9 +146,10 @@ make clean
 - 修改内核信息可能影响某些应用的兼容性
 - 建议在测试环境中先验证功能
 - 日志文件会记录所有操作，便于调试和问题排查
-- 模块禁用后，uname 信息会恢复为原始值
+- 模块禁用后，uname 信息会恢复为原始值；也可用还原功能（WebUI 按钮或 `CR`/`CV` 命令）单独还原某个字段
 - 配置文件位于：`/data/adb/modules/spoof_uname/config.sh`
-- 开机自启功能需要 APatch 或 KernelSU 原生模式
+- 开机自启功能必须**嵌入** KPM
+- 开机注入默认在 `service` 阶段执行；若个别设备在 `post-fs-data` 阶段注入会卡开机，可在 WebUI 切换启动阶段（配置项 `boot_stage`）
 
 ## 技术原理
 
