@@ -1,4 +1,4 @@
-VERSION := v0.8.2
+VERSION := v1.0.0
 BUILD_DIR := build
 APM_DIR := apm
 KPM_DIR := kpm
